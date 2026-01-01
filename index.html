@@ -2,25 +2,56 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>قائمة أسماء مشتركة</title>
   <style>
-    body { font-family: Arial, system-ui; margin: 20px; }
-    input, button { padding: 10px; font-size: 16px; }
+    body { font-family: system-ui, Arial; margin: 24px; max-width: 720px; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    input, button { padding: 10px 12px; font-size: 16px; }
+    input { width: 100%; box-sizing: border-box; margin: 8px 0; }
+    button { cursor: pointer; }
     ul { padding: 0; list-style: none; }
-    li { padding: 8px 0; border-bottom: 1px solid #ddd; }
+    li { padding: 10px 12px; border-bottom: 1px solid #eee; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .muted { color: #666; font-size: 14px; }
+    .pill { background: #f2f2f2; padding: 4px 8px; border-radius: 999px; font-size: 13px; }
+    .ok { color: #0a7; }
+    .err { color: #c00; }
   </style>
 </head>
 <body>
+  <h1>قائمة أسماء مشتركة ☁️</h1>
 
-  <h2>قائمة أسماء مشتركة ☁️</h2>
+  <div class="card">
+    <div class="row">
+      <span class="pill">Room: <span id="roomId">...</span></span>
+      <span class="pill">الحالة: <span id="status" class="muted">جاري التحميل...</span></span>
+    </div>
 
-  <input id="nameInput" placeholder="اكتب الاسم" />
-  <button id="addBtn">إضافة</button>
+    <p class="muted">
+      هذا الرابط هو نفس القائمة. انسخه وارسله للي تريد، وكلهم يضيفون وتشوفون التحديثات مباشرة.
+    </p>
 
-  <p id="msg"></p>
+    <div class="row">
+      <input id="shareLink" type="text" readonly />
+      <button id="copyBtn">نسخ الرابط</button>
+      <button id="newRoomBtn" title="يسوي قائمة جديدة">قائمة جديدة</button>
+    </div>
+  </div>
 
-  <ul id="list"></ul>
+  <div class="card">
+    <label for="nameInput">أضف اسم:</label>
+    <div class="row">
+      <input id="nameInput" placeholder="اكتب الاسم هنا..." />
+      <button id="addBtn">إضافة</button>
+    </div>
+    <div id="msg" class="muted"></div>
+  </div>
+
+  <div class="card">
+    <h3>الأسماء (<span id="count">0</span>)</h3>
+    <ul id="list"></ul>
+  </div>
 
   <script type="module" src="./app.js"></script>
 </body>
