@@ -12,7 +12,7 @@ import {
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-// 🔹 Firebase config (مالك)
+// ✅ Firebase config (مالك)
 const firebaseConfig = {
   apiKey: "AIzaSyC4Q4qTILDP4eYuo8OpER_NQ4udj5lXSwM",
   authDomain: "nabeel-abd.firebaseapp.com",
@@ -23,71 +23,55 @@ const firebaseConfig = {
   measurementId: "G-9ES5BKWRVH"
 };
 
-// Initialize Firebase
+// ✅ خليها قائمة وحدة للجميع
+const ROOM_ID = "global";
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// ---------- Helpers ----------
-function getRoomId() {
-  const url = new URL(location.href);
-  let room = url.searchParams.get("room");
-
-  if (!room) {
-    room = (crypto.randomUUID
-      ? crypto.randomUUID()
-      : Math.random().toString(36).slice(2, 10)
-    ).replaceAll("-", "").slice(0, 10);
-
-    url.searchParams.set("room", room);
-    history.replaceState({}, "", url.toString());
-  }
-  return room;
-}
-
-function setMsg(text, type = "muted") {
-  const el = document.getElementById("msg");
-  el.className = type === "ok" ? "ok" : type === "err" ? "err" : "muted";
-  el.textContent = text || "";
-}
-
-// ---------- UI Elements ----------
-const roomIdEl = document.getElementById("roomId");
+// ---------- UI ----------
 const statusEl = document.getElementById("status");
-const shareLinkEl = document.getElementById("shareLink");
-const copyBtn = document.getElementById("copyBtn");
-const newRoomBtn = document.getElementById("newRoomBtn");
+const msgEl = document.getElementById("msg");
 const nameInput = document.getElementById("nameInput");
 const addBtn = document.getElementById("addBtn");
 const listEl = document.getElementById("list");
 const countEl = document.getElementById("count");
 
-// ---------- Room ----------
-const roomId = getRoomId();
-roomIdEl.textContent = roomId;
-shareLinkEl.value = location.href;
+// 3D tilt (اختياري لكنه يعطي إحساس احترافي)
+const tiltCard = document.getElementById("tiltCard");
+(function initTilt() {
+  if (!tiltCard) return;
+  const max = 10; // درجات الميلان
+  const reset = () => {
+    tiltCard.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0)";
+  };
 
-copyBtn.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(location.href);
-    setMsg("تم نسخ الرابط ✅", "ok");
-  } catch {
-    shareLinkEl.select();
-    document.execCommand("copy");
-    setMsg("انسخ الرابط من الحقل بالأعلى ✅", "ok");
-  }
-});
+  const onMove = (e) => {
+    const rect = tiltCard.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;   // 0..1
+    const y = (e.clientY - rect.top) / rect.height;   // 0..1
+    const rotY = (x - 0.5) * (max * 2);
+    const rotX = -(y - 0.5) * (max * 2);
+    tiltCard.style.transform =
+      `perspective(900px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) translateZ(0)`;
+  };
 
-newRoomBtn.addEventListener("click", () => {
-  const url = new URL(location.href);
-  url.searchParams.delete("room");
-  location.href = url.toString();
-});
+  reset();
+  tiltCard.addEventListener("pointermove", onMove);
+  tiltCard.addEventListener("pointerleave", reset);
+  tiltCard.addEventListener("pointercancel", reset);
+})();
 
-addBtn.addEventListener("click", addName);
-nameInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") addName();
-});
+function setMsg(text, type = "muted") {
+  msgEl.className = type;
+  msgEl.textContent = text || "";
+}
+
+function setStatus(text, type = "muted") {
+  statusEl.className = type;
+  statusEl.textContent = text || "";
+}
 
 async function addName() {
   const name = (nameInput.value || "").trim();
@@ -100,7 +84,7 @@ async function addName() {
   setMsg("جاري الإضافة…");
 
   try {
-    const col = collection(db, "rooms", roomId, "names");
+    const col = collection(db, "rooms", ROOM_ID, "names");
     await addDoc(col, {
       name,
       createdAt: serverTimestamp(),
@@ -110,28 +94,33 @@ async function addName() {
     setMsg("تمت الإضافة ✅", "ok");
   } catch (err) {
     console.error(err);
-    setMsg("صار خطأ بالإضافة.", "err");
+    setMsg("صار خطأ بالإضافة. تأكد من Firestore Rules.", "err");
   } finally {
     addBtn.disabled = false;
   }
 }
 
-// ---------- Auth + Realtime ----------
-statusEl.textContent = "تسجيل دخول…";
+addBtn.addEventListener("click", addName);
+nameInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") addName();
+});
 
-signInAnonymously(auth).catch(() => {
-  statusEl.textContent = "فشل تسجيل الدخول";
-  statusEl.className = "err";
+// ---------- Auth + Realtime ----------
+setStatus("جاري الاتصال…", "muted");
+
+signInAnonymously(auth).catch((e) => {
+  console.error(e);
+  setStatus("فشل تسجيل الدخول", "err");
+  setMsg("تأكد Anonymous Auth مفعّل.", "err");
 });
 
 onAuthStateChanged(auth, (user) => {
   if (!user) return;
 
-  statusEl.textContent = "متصل ✅";
-  statusEl.className = "ok";
+  setStatus("متصل ✅", "ok");
 
-  const col = collection(db, "rooms", roomId, "names");
-  const q = query(col, orderBy("createdAt", "desc"), limit(200));
+  const col = collection(db, "rooms", ROOM_ID, "names");
+  const q = query(col, orderBy("createdAt", "desc"), limit(300));
 
   onSnapshot(q, (snap) => {
     listEl.innerHTML = "";
