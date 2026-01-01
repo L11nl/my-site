@@ -3,56 +3,215 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>قائمة أسماء مشتركة</title>
+  <title>قائمة الأسماء</title>
   <style>
-    body { font-family: system-ui, Arial; margin: 24px; max-width: 720px; }
-    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-    input, button { padding: 10px 12px; font-size: 16px; }
-    input { width: 100%; box-sizing: border-box; margin: 8px 0; }
-    button { cursor: pointer; }
-    ul { padding: 0; list-style: none; }
-    li { padding: 10px 12px; border-bottom: 1px solid #eee; }
-    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .muted { color: #666; font-size: 14px; }
-    .pill { background: #f2f2f2; padding: 4px 8px; border-radius: 999px; font-size: 13px; }
-    .ok { color: #0a7; }
-    .err { color: #c00; }
+    :root{
+      --bg1:#0b1020;
+      --bg2:#0a2a3a;
+      --glass: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+      --ok: #20d4a6;
+      --err:#ff5a6b;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Arial;
+      color:var(--text);
+      min-height:100vh;
+      background: radial-gradient(1200px 700px at 10% 10%, #1b2a55 0%, transparent 55%),
+                  radial-gradient(1200px 700px at 90% 20%, #0b5a6a 0%, transparent 55%),
+                  linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    .wrap{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 26px 16px 40px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size: 22px;
+      letter-spacing:.2px;
+    }
+    .brand p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .badge{
+      padding:8px 12px;
+      border-radius:999px;
+      background: var(--glass);
+      border: 1px solid var(--stroke);
+      backdrop-filter: blur(10px);
+      font-size: 13px;
+      white-space:nowrap;
+    }
+    .badge.ok{ color: var(--ok); }
+    .badge.err{ color: var(--err); }
+
+    .grid{
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(60% 60% at 50% 20%, black 20%, transparent 75%);
+      opacity:.35;
+    }
+
+    .card{
+      background: var(--glass);
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      padding: 16px;
+      backdrop-filter: blur(14px);
+      box-shadow:
+        0 22px 60px rgba(0,0,0,.35),
+        inset 0 1px 0 rgba(255,255,255,.08);
+      transform-style: preserve-3d;
+      transition: transform .2s ease;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset: -2px;
+      border-radius: 18px;
+      background: radial-gradient(800px 220px at 30% 0%, rgba(255,255,255,.22), transparent 55%);
+      opacity:.75;
+      pointer-events:none;
+      transform: translateZ(1px);
+    }
+
+    .card + .card{ margin-top: 14px; }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    input{
+      flex:1;
+      min-width: 180px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      outline:none;
+    }
+    input::placeholder{ color: rgba(255,255,255,.55); }
+
+    button{
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.12);
+      color: var(--text);
+      cursor:pointer;
+      font-weight: 600;
+    }
+    button:disabled{ opacity:.6; cursor:not-allowed; }
+
+    #msg{
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    #msg.ok{ color: var(--ok); }
+    #msg.err{ color: var(--err); }
+
+    .listHead{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom: 10px;
+    }
+    .listHead h3{
+      margin:0;
+      font-size: 16px;
+    }
+    .count{
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    ul{
+      list-style:none;
+      margin:0;
+      padding:0;
+    }
+    li{
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
+      margin-bottom: 10px;
+    }
+
+    .footer{
+      margin-top: 14px;
+      color: rgba(255,255,255,.55);
+      font-size: 12px;
+      text-align:center;
+    }
   </style>
 </head>
 <body>
-  <h1>قائمة أسماء مشتركة ☁️</h1>
+  <div class="grid"></div>
 
-  <div class="card">
-    <div class="row">
-      <span class="pill">Room: <span id="roomId">...</span></span>
-      <span class="pill">الحالة: <span id="status" class="muted">جاري التحميل...</span></span>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <h1>قائمة أسماء مشتركة</h1>
+        <p>نفس الرابط للجميع — أي شخص يضيف، الكل يشوف مباشرة.</p>
+      </div>
+      <div class="badge" id="status">جاري التحميل…</div>
     </div>
 
-    <p class="muted">
-      هذا الرابط هو نفس القائمة. انسخه وارسله للي تريد، وكلهم يضيفون وتشوفون التحديثات مباشرة.
-    </p>
-
-    <div class="row">
-      <input id="shareLink" type="text" readonly />
-      <button id="copyBtn">نسخ الرابط</button>
-      <button id="newRoomBtn" title="يسوي قائمة جديدة">قائمة جديدة</button>
+    <div class="card" id="tiltCard">
+      <div class="row">
+        <input id="nameInput" placeholder="اكتب الاسم هنا…" />
+        <button id="addBtn">إضافة</button>
+      </div>
+      <div id="msg"> </div>
     </div>
-  </div>
 
-  <div class="card">
-    <label for="nameInput">أضف اسم:</label>
-    <div class="row">
-      <input id="nameInput" placeholder="اكتب الاسم هنا..." />
-      <button id="addBtn">إضافة</button>
+    <div class="card">
+      <div class="listHead">
+        <h3>الأسماء</h3>
+        <div class="count">العدد: <span id="count">0</span></div>
+      </div>
+      <ul id="list"></ul>
+      <div class="footer">Powered by Firebase + GitHub Pages</div>
     </div>
-    <div id="msg" class="muted"></div>
-  </div>
 
-  <div class="card">
-    <h3>الأسماء (<span id="count">0</span>)</h3>
-    <ul id="list"></ul>
+    <script type="module" src="./app.js"></script>
   </div>
-
-  <script type="module" src="./app.js"></script>
 </body>
 </html>
