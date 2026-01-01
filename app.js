@@ -5,11 +5,11 @@ import {
   getFirestore,
   collection,
   addDoc,
-  serverTimestamp,
   query,
   orderBy,
   limit,
-  onSnapshot
+  onSnapshot,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 // ✅ Firebase config (مالك)
@@ -23,7 +23,7 @@ const firebaseConfig = {
   measurementId: "G-9ES5BKWRVH"
 };
 
-// ✅ خليها قائمة وحدة للجميع
+// ✅ نفس القائمة للجميع (بدون روابط/Rooms)
 const ROOM_ID = "global";
 
 const app = initializeApp(firebaseConfig);
@@ -38,41 +38,41 @@ const addBtn = document.getElementById("addBtn");
 const listEl = document.getElementById("list");
 const countEl = document.getElementById("count");
 
-// 3D tilt (اختياري لكنه يعطي إحساس احترافي)
+// ---------- 3D Tilt ----------
 const tiltCard = document.getElementById("tiltCard");
 (function initTilt() {
   if (!tiltCard) return;
-  const max = 10; // درجات الميلان
+  const max = 10;
   const reset = () => {
-    tiltCard.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0)";
+    tiltCard.style.transform =
+      "perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0)";
   };
-
   const onMove = (e) => {
     const rect = tiltCard.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;   // 0..1
-    const y = (e.clientY - rect.top) / rect.height;   // 0..1
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
     const rotY = (x - 0.5) * (max * 2);
     const rotX = -(y - 0.5) * (max * 2);
     tiltCard.style.transform =
       `perspective(900px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) translateZ(0)`;
   };
-
   reset();
   tiltCard.addEventListener("pointermove", onMove);
   tiltCard.addEventListener("pointerleave", reset);
   tiltCard.addEventListener("pointercancel", reset);
 })();
 
+// ---------- Helpers ----------
 function setMsg(text, type = "muted") {
   msgEl.className = type;
   msgEl.textContent = text || "";
 }
-
 function setStatus(text, type = "muted") {
-  statusEl.className = type;
+  statusEl.className = `badge ${type}`;
   statusEl.textContent = text || "";
 }
 
+// ---------- Add name ----------
 async function addName() {
   const name = (nameInput.value || "").trim();
   if (!name) return setMsg("اكتب اسم أولاً.", "err");
@@ -81,20 +81,24 @@ async function addName() {
   if (!user) return setMsg("انتظر شوي… جاري تسجيل الدخول.", "err");
 
   addBtn.disabled = true;
-  setMsg("جاري الإضافة…");
+  setMsg("جاري الإضافة…", "muted");
 
   try {
-    const col = collection(db, "rooms", ROOM_ID, "names");
-    await addDoc(col, {
+    const colRef = collection(db, "rooms", ROOM_ID, "names");
+
+    // ✅ نخزن وقت ثابت بالأرقام حتى ما يختفي بعد التحديث
+    await addDoc(colRef, {
       name,
       createdAt: serverTimestamp(),
+      createdAtMs: Date.now(),
       createdBy: user.uid
     });
+
     nameInput.value = "";
     setMsg("تمت الإضافة ✅", "ok");
   } catch (err) {
     console.error(err);
-    setMsg("صار خطأ بالإضافة. تأكد من Firestore Rules.", "err");
+    setMsg("صار خطأ بالإضافة. تأكد من قواعد Firestore.", "err");
   } finally {
     addBtn.disabled = false;
   }
@@ -119,8 +123,10 @@ onAuthStateChanged(auth, (user) => {
 
   setStatus("متصل ✅", "ok");
 
-  const col = collection(db, "rooms", ROOM_ID, "names");
-  const q = query(col, orderBy("createdAt", "desc"), limit(300));
+  const colRef = collection(db, "rooms", ROOM_ID, "names");
+
+  // ✅ نرتب على createdAtMs (ثابت) حتى ما تختفي الأسماء
+  const q = query(colRef, orderBy("createdAtMs", "desc"), limit(300));
 
   onSnapshot(q, (snap) => {
     listEl.innerHTML = "";
