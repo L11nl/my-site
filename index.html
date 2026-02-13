@@ -1,217 +1,2060 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>قائمة الأسماء</title>
-  <style>
-    :root{
-      --bg1:#0b1020;
-      --bg2:#0a2a3a;
-      --glass: rgba(255,255,255,.08);
-      --stroke: rgba(255,255,255,.12);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.65);
-      --ok: #20d4a6;
-      --err:#ff5a6b;
-    }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مدير المخزون | نسخة محلية</title>
 
-    *{box-sizing:border-box}
+  <!-- UI -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
     body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Arial;
-      color:var(--text);
-      min-height:100vh;
-      background: radial-gradient(1200px 700px at 10% 10%, #1b2a55 0%, transparent 55%),
-                  radial-gradient(1200px 700px at 90% 20%, #0b5a6a 0%, transparent 55%),
-                  linear-gradient(160deg, var(--bg1), var(--bg2));
+      font-family:'Tajawal', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(900px 500px at 15% -10%, rgba(59,130,246,.18), transparent 60%),
+        radial-gradient(800px 500px at 90% 10%, rgba(16,185,129,.12), transparent 55%),
+        #0b1224;
+      color:#e2e8f0;
       overflow-x:hidden;
     }
 
-    .wrap{
-      max-width: 820px;
-      margin: 0 auto;
-      padding: 26px 16px 40px;
-    }
+    ::-webkit-scrollbar{ width:8px; }
+    ::-webkit-scrollbar-track{ background:#070c18; }
+    ::-webkit-scrollbar-thumb{ background:#3b82f6; border-radius:6px; }
+    ::-webkit-scrollbar-thumb:hover{ background:#2563eb; }
 
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:18px;
-    }
-
-    .brand h1{
-      margin:0;
-      font-size: 22px;
-      letter-spacing:.2px;
-    }
-    .brand p{
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size: 13px;
-    }
-
-    .badge{
-      padding:8px 12px;
-      border-radius:999px;
-      background: var(--glass);
-      border: 1px solid var(--stroke);
+    .glass-panel{
+      background: rgba(15,23,42,.55);
+      border: 1px solid rgba(148,163,184,.18);
       backdrop-filter: blur(10px);
-      font-size: 13px;
-      white-space:nowrap;
+      -webkit-backdrop-filter: blur(10px);
     }
-    .badge.ok{ color: var(--ok); }
-    .badge.err{ color: var(--err); }
 
-    .grid{
+    .soft{
+      transition: background .16s ease, border-color .16s ease, box-shadow .16s ease, transform .06s ease, opacity .16s ease;
+      will-change: auto;
+    }
+
+    .press-glow:active{
+      box-shadow: 0 0 0 3px rgba(255,255,255,.08), 0 0 18px rgba(59,130,246,.20);
+      transform: translateY(1px);
+    }
+
+    .flash{ animation: flash .22s ease-out; }
+    @keyframes flash{
+      0%{ box-shadow: 0 0 0 rgba(255,255,255,0); }
+      100%{ box-shadow: 0 0 0 3px rgba(255,255,255,.08), 0 0 22px rgba(56,189,248,.20); }
+    }
+
+    .field-copy{
+      cursor:pointer;
+      transition: background .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+    .field-copy:hover{
+      background-color: rgba(51,65,85,.25);
+      border-color: rgba(59,130,246,.35);
+      box-shadow: 0 10px 25px rgba(0,0,0,.18);
+    }
+
+    .tab-pill{
+      border: 1px solid rgba(148,163,184,.18);
+      background: rgba(2,6,23,.45);
+      white-space: nowrap;
+    }
+    .tab-active{
+      border-color: rgba(59,130,246,.45);
+      background: rgba(59,130,246,.10);
+      box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+    }
+
+    #snowCanvas{
       position: fixed;
       inset: 0;
-      pointer-events:none;
-      background-image:
-        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
-      background-size: 44px 44px;
-      mask-image: radial-gradient(60% 60% at 50% 20%, black 20%, transparent 75%);
-      opacity:.35;
+      pointer-events: none;
+      z-index: 5;
+      opacity: .55;
     }
 
-    .card{
-      background: var(--glass);
-      border: 1px solid var(--stroke);
-      border-radius: 18px;
+    .modal-backdrop{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      z-index: 60;
+      display: none;
+      align-items: center;
+      justify-content: center;
       padding: 16px;
-      backdrop-filter: blur(14px);
-      box-shadow:
-        0 22px 60px rgba(0,0,0,.35),
-        inset 0 1px 0 rgba(255,255,255,.08);
-      transform-style: preserve-3d;
-      transition: transform .2s ease;
+    }
+    .modal-backdrop.show{ display:flex; }
+
+    body.modal-open{
+      overflow: hidden;
+      touch-action: none;
     }
 
-    .card::before{
-      content:"";
-      position:absolute;
-      inset: -2px;
-      border-radius: 18px;
-      background: radial-gradient(800px 220px at 30% 0%, rgba(255,255,255,.22), transparent 55%);
-      opacity:.75;
-      pointer-events:none;
-      transform: translateZ(1px);
+    .modal-panel{
+      max-height: 82vh;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
     }
 
-    .card + .card{ margin-top: 14px; }
-
-    .row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
+    /* Light/Dark */
+    :root[data-theme="light"] body{
+      background:
+        radial-gradient(900px 500px at 15% -10%, rgba(59,130,246,.12), transparent 60%),
+        radial-gradient(800px 500px at 90% 10%, rgba(16,185,129,.10), transparent 55%),
+        #f6f7fb;
+      color:#0f172a;
     }
-
-    input{
-      flex:1;
-      min-width: 180px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.18);
-      color: var(--text);
-      outline:none;
+    :root[data-theme="light"] .glass-panel{
+      background: rgba(255,255,255,.70);
+      border: 1px solid rgba(15,23,42,.12);
     }
-    input::placeholder{ color: rgba(255,255,255,.55); }
-
-    button{
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.12);
-      color: var(--text);
-      cursor:pointer;
-      font-weight: 600;
-    }
-    button:disabled{ opacity:.6; cursor:not-allowed; }
-
-    #msg{
-      margin-top: 10px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-    #msg.ok{ color: var(--ok); }
-    #msg.err{ color: var(--err); }
-
-    .listHead{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      margin-bottom: 10px;
-    }
-    .listHead h3{
-      margin:0;
-      font-size: 16px;
-    }
-    .count{
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(0,0,0,.18);
-      border: 1px solid rgba(255,255,255,.12);
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    ul{
-      list-style:none;
-      margin:0;
-      padding:0;
-    }
-    li{
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.14);
-      margin-bottom: 10px;
-    }
-
-    .footer{
-      margin-top: 14px;
-      color: rgba(255,255,255,.55);
-      font-size: 12px;
-      text-align:center;
-    }
+    :root[data-theme="light"] .tab-pill{ background: rgba(255,255,255,.55); }
+    :root[data-theme="light"] .field-copy:hover{ background-color: rgba(2,6,23,.06); }
   </style>
 </head>
-<body>
-  <div class="grid"></div>
 
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">
-        <h1>قائمة أسماء مشتركة</h1>
-        <p>نفس الرابط للجميع — أي شخص يضيف، الكل يشوف مباشرة.</p>
+<body class="min-h-screen flex flex-col items-center py-10 px-4">
+
+  <canvas id="snowCanvas"></canvas>
+
+  <header class="w-full max-w-5xl mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-5 relative z-10">
+    <div class="space-y-2">
+      <h1 class="text-3xl font-extrabold text-blue-400 flex items-center gap-3">
+        <i class="fa-solid fa-boxes-stacked"></i>
+        <span id="titleName">المخزون</span>
+      </h1>
+
+      <div class="text-xs text-slate-300 mt-2">
+        حالة التخزين: <span id="cloudStatus" class="font-bold text-emerald-300">محلي ✅</span>
+        • المستخدم: <span id="userLabel" class="font-mono text-slate-200">Local</span>
       </div>
-      <div class="badge" id="status">جاري التحميل…</div>
     </div>
 
-    <div class="card" id="tiltCard">
-      <div class="row">
-        <input id="nameInput" placeholder="اكتب الاسم هنا…" />
-        <button id="addBtn">إضافة</button>
+    <div class="flex gap-3 w-full md:w-auto items-center">
+      <div class="flex gap-2 items-center flex-wrap">
+        <div id="tabsWrap" class="flex gap-2 flex-wrap"></div>
+
+        <button id="addInvBtn" title="إضافة مخزون جديد"
+          class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-black text-slate-100">
+          <i class="fa-solid fa-plus ml-2 text-emerald-300"></i> إضافة مخزون
+        </button>
+
+        <button id="linksBtn" title="روابط"
+          class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold text-slate-100">
+          <i class="fa-solid fa-link ml-2 text-sky-300"></i> روابط
+        </button>
+
+        <button id="settingsBtn" title="إعدادات"
+          class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold text-slate-100">
+          <i class="fa-solid fa-gear ml-2 text-slate-300"></i> الإعدادات
+        </button>
+
+        <button id="themeBtn" title="نهار/ليل"
+          class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold text-slate-100">
+          <i class="fa-solid fa-moon ml-2 text-indigo-200"></i> نهار/ليل
+        </button>
       </div>
-      <div id="msg"> </div>
+
+      <div class="glass-panel soft px-5 py-3 rounded-2xl text-center shadow-lg shadow-blue-500/10">
+        <span class="block text-xs text-slate-400">المتوفر بالمخزون</span>
+        <span id="stockCount" class="text-2xl font-extrabold text-emerald-300">0</span>
+      </div>
+      <div class="glass-panel soft px-5 py-3 rounded-2xl text-center shadow-lg shadow-purple-500/10">
+        <span class="block text-xs text-slate-400">تم سحبها</span>
+        <span id="pulledCount" class="text-2xl font-extrabold text-purple-300">0</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="w-full max-w-5xl space-y-6 relative z-10">
+
+    <section class="glass-panel soft p-6 rounded-3xl shadow-xl">
+      <div class="flex justify-between items-center mb-4 gap-3">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-file-pen text-blue-400"></i>
+          <span>تغذية المخزون</span>
+        </h2>
+
+        <button id="toggleBtn" class="press-glow soft text-slate-300 hover:text-white text-sm underline">
+          إخفاء/إظهار
+        </button>
+      </div>
+
+      <div id="inputSection" class="space-y-4">
+        <textarea id="bulkInput" rows="5"
+          class="w-full bg-slate-950/30 text-sm text-white p-4 rounded-2xl border border-slate-700/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition placeholder-slate-500"
+          placeholder="ضع القائمة هنا بالتنسيق:
+login;password;authenticatorToken;appPassword;authenticatorUrl;messagesUrl
+login;password;authenticatorToken;appPassword;authenticatorUrl;messagesUrl"></textarea>
+
+        <div class="flex flex-col md:flex-row justify-between gap-3">
+          <button id="clearBtn"
+            class="press-glow soft text-red-200 hover:text-red-100 transition px-4 py-2 rounded-xl border border-red-900/40 bg-red-950/20 hover:bg-red-950/30">
+            <i class="fa-solid fa-trash ml-1"></i> تصفير المخزون
+          </button>
+
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button id="importBtn"
+              class="press-glow soft bg-slate-800/55 hover:bg-slate-700/60 border border-slate-700/60 text-white font-bold py-3 px-6 rounded-2xl flex items-center justify-center gap-2">
+              <i class="fa-solid fa-file-arrow-up text-blue-300"></i>
+              <span>استيراد ملف</span>
+            </button>
+            <input id="importFile" type="file" accept=".txt" class="hidden" />
+
+            <button id="exportBtn"
+              class="press-glow soft bg-slate-800/55 hover:bg-slate-700/60 border border-slate-700/60 text-white font-bold py-3 px-6 rounded-2xl flex items-center justify-center gap-2">
+              <i class="fa-solid fa-file-arrow-down text-emerald-300"></i>
+              <span>تصدير المخزون</span>
+            </button>
+
+            <button id="addBtn"
+              class="press-glow soft bg-blue-600 hover:bg-blue-500 text-white font-extrabold py-3 px-7 rounded-2xl shadow-lg shadow-blue-600/15 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-plus"></i>
+              <span>إضافة للمخزون</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="flex justify-center py-2">
+      <button id="pullBtn"
+        class="press-glow soft relative group bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-2xl font-black py-5 px-8 md:px-12 rounded-3xl shadow-2xl shadow-emerald-500/20 w-full md:w-auto">
+        <div class="flex items-center justify-center gap-3">
+          <i class="fa-solid fa-hand-holding-hand"></i>
+          <span>سحب حساب جديد</span>
+        </div>
+      </button>
     </div>
 
-    <div class="card">
-      <div class="listHead">
-        <h3>الأسماء</h3>
-        <div class="count">العدد: <span id="count">0</span></div>
-      </div>
-      <ul id="list"></ul>
-      <div class="footer">Powered by Firebase + GitHub Pages</div>
-    </div>
+    <section id="resultArea" class="hidden">
+      <div class="glass-panel soft p-1 rounded-[26px] border border-slate-600/50 shadow-2xl">
+        <div class="bg-slate-950/25 rounded-[22px] p-6">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-4 border-b border-slate-700/60 gap-2">
+            <span class="text-emerald-300 font-extrabold text-lg flex items-center gap-2">
+              <i class="fa-solid fa-check-circle"></i>
+              تم السحب بنجاح
+            </span>
+            <span class="text-xs text-slate-400 font-mono" id="timestamp"></span>
+          </div>
 
-    <script type="module" src="./app.js"></script>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="press-glow field-copy soft bg-slate-950/25 p-3 rounded-2xl border border-slate-700/60 group" data-copy="email">
+              <label class="text-xs text-slate-400 block mb-1">البريد الإلكتروني (Email)</label>
+              <div class="flex justify-between items-center gap-3">
+                <span id="emailDisplay" class="font-mono text-blue-300 truncate">---</span>
+                <i class="fa-regular fa-copy text-slate-500 group-hover:text-white"></i>
+              </div>
+            </div>
+
+            <div class="press-glow field-copy soft bg-slate-950/25 p-3 rounded-2xl border border-slate-700/60 group" data-copy="password">
+              <label class="text-xs text-slate-400 block mb-1">كلمة المرور (Password)</label>
+              <div class="flex justify-between items-center gap-3">
+                <span id="passDisplay" class="font-mono text-rose-300 truncate">••••••</span>
+                <i class="fa-regular fa-copy text-slate-500 group-hover:text-white"></i>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-1">اضغط لنسخ القيمة</div>
+            </div>
+
+            <div class="press-glow field-copy soft bg-slate-950/25 p-3 rounded-2xl border border-slate-700/60 group" data-copy="token">
+              <label class="text-xs text-slate-400 block mb-1">رمز المصادقة (Authenticator Token)</label>
+              <div class="flex justify-between items-center gap-3">
+                <span id="tokDisplay" class="font-mono text-amber-300 truncate">••••••</span>
+                <i class="fa-regular fa-copy text-slate-500 group-hover:text-white"></i>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-1">اضغط لنسخ القيمة</div>
+            </div>
+
+            <div class="press-glow field-copy soft bg-slate-950/25 p-3 rounded-2xl border border-slate-700/60 group" data-copy="appPassword">
+              <label class="text-xs text-slate-400 block mb-1">App Password</label>
+              <div class="flex justify-between items-center gap-3">
+                <span id="appDisplay" class="font-mono text-purple-300 truncate">••••••</span>
+                <i class="fa-regular fa-copy text-slate-500 group-hover:text-white"></i>
+              </div>
+              <div class="text-[11px] text-slate-400 mt-1">اضغط لنسخ القيمة</div>
+            </div>
+
+            <div class="soft bg-slate-950/25 p-3 rounded-2xl border border-slate-700/60 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+              <div>
+                <label class="text-xs text-slate-400 block mb-1">رابط المصادقة</label>
+                <div class="text-xs text-slate-300 font-mono break-all max-w-full sm:max-w-[260px]" id="authUrlLabel">---</div>
+              </div>
+              <div class="flex gap-2 w-full sm:w-auto justify-end flex-wrap">
+                <button id="copyAuthUrlBtn"
+                  class="press-glow soft bg-slate-800/55 hover:bg-slate-700/60 border border-slate-700/60 text-white text-xs px-3 py-1.5 rounded-lg transition whitespace-nowrap">
+                  نسخ
+                </button>
+                <a id="authUrlBtn" href="#" target="_blank" rel="noopener"
+                   class="press-glow soft bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-1.5 rounded-lg transition shadow-lg shadow-indigo-600/15 whitespace-nowrap">
+                  <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i> فتح
+                </a>
+              </div>
+            </div>
+
+            <div class="soft bg-slate-950/25 p-3 rounded-2xl border border-slate-700/60 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+              <div>
+                <label class="text-xs text-slate-400 block mb-1">رابط الرسائل</label>
+                <div class="text-xs text-slate-300 font-mono break-all max-w-full sm:max-w-[260px]" id="messagesUrlLabel">---</div>
+              </div>
+              <div class="flex gap-2 w-full sm:w-auto justify-end flex-wrap">
+                <button id="copyMessagesUrlBtn"
+                  class="press-glow soft bg-slate-800/55 hover:bg-slate-700/60 border border-slate-700/60 text-white text-xs px-3 py-1.5 rounded-lg transition whitespace-nowrap">
+                  نسخ
+                </button>
+                <a id="messagesUrlBtn" href="#" target="_blank" rel="noopener"
+                   class="press-glow soft bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-lg transition shadow-lg shadow-emerald-600/15 whitespace-nowrap">
+                  <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i> فتح
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-2 space-y-2">
+            <button id="copyFullBtn"
+              class="press-glow soft w-full bg-slate-800/55 hover:bg-slate-700/60 border border-slate-700/60 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 group">
+              <i class="fa-solid fa-clipboard-list text-blue-300"></i>
+              <span>نسخ المعلومات كاملة</span>
+            </button>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <button id="restoreBtn"
+                class="press-glow soft bg-emerald-700/30 hover:bg-emerald-700/40 border border-emerald-700/35 text-emerald-100 font-bold py-3 rounded-2xl flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rotate-left text-emerald-300"></i>
+                <span>استرجاع للمخزون</span>
+              </button>
+
+              <button id="deleteLastBtn"
+                class="press-glow soft bg-red-700/20 hover:bg-red-700/28 border border-red-700/30 text-red-100 font-bold py-3 rounded-2xl flex items-center justify-center gap-2">
+                <i class="fa-solid fa-xmark text-red-300"></i>
+                <span>حذف من الشاشة</span>
+              </button>
+            </div>
+
+            <div id="moveButtonsWrap" class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2"></div>
+
+            <p class="text-center text-[11px] text-slate-300">
+              ✅ هذه نسخة محلية. الروابط والايميل قابلة للنسخ. الأسرار تُعرض فقط (بدون نسخ).
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div id="toast"
+    class="fixed bottom-5 left-1/2 -translate-x-1/2 md:left-5 md:translate-x-0 bg-slate-900/90 border border-slate-700/70 text-white px-5 py-3 rounded-2xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3">
+    <i id="toastIcon" class="fa-solid fa-info-circle"></i>
+    <span id="toastMsg">تم العملية بنجاح</span>
   </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal-backdrop">
+    <div class="glass-panel soft modal-panel w-full max-w-2xl rounded-3xl p-5 border border-slate-700/50 shadow-2xl">
+      <div class="flex justify-between items-center mb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-gear text-slate-300"></i>
+          <span class="font-extrabold text-white">إعدادات المخزون</span>
+          <span class="text-xs text-slate-300">إدارة المخازن</span>
+        </div>
+        <button id="closeSettingsBtn" class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold">
+          إغلاق
+        </button>
+      </div>
+
+            <div class="bg-slate-950/20 border border-slate-700/40 rounded-2xl p-4 space-y-4">
+
+        <!-- General -->
+        <div>
+          <div class="text-sm text-slate-200 font-bold mb-3">⚙️ إعدادات عامة</div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+            <div class="space-y-1">
+              <label class="text-xs text-slate-300">عنوان الصفحة</label>
+              <input id="appTitleInput" type="text"
+                class="w-full bg-slate-950/25 text-sm text-white px-4 py-3 rounded-2xl border border-slate-700/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+                placeholder="مثال: المخزون" />
+              <div class="text-[11px] text-slate-400">يظهر أعلى الصفحة.</div>
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-xs text-slate-300">الفاصل بين الحقول</label>
+              <input id="delimiterInput" type="text" maxlength="3"
+                class="w-full bg-slate-950/25 text-sm text-white px-4 py-3 rounded-2xl border border-slate-700/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+                placeholder=";" />
+              <div class="text-[11px] text-slate-400">افتراضي: ;</div>
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-xs text-slate-300">طريقة السحب</label>
+              <select id="pullModeSelect"
+                class="w-full bg-slate-950/25 text-sm text-white px-4 py-3 rounded-2xl border border-slate-700/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition">
+                <option value="fifo">من البداية (FIFO)</option>
+                <option value="lifo">من النهاية (LIFO)</option>
+                <option value="random">عشوائي</option>
+              </select>
+              <div class="text-[11px] text-slate-400">FIFO = أول عنصر يطلع أولاً.</div>
+            </div>
+
+            <div class="space-y-2">
+              <div class="text-xs text-slate-300">النسخ/الخصوصية</div>
+
+              <label class="flex items-center gap-2 text-sm text-slate-100">
+                <input id="allowSecretCopyToggle" type="checkbox" class="accent-blue-500">
+                تفعيل نسخ الأسرار (Password / Token / App Password)
+              </label>
+
+              <label class="flex items-center gap-2 text-sm text-slate-100">
+                <input id="includeSecretsFullToggle" type="checkbox" class="accent-blue-500">
+                إدراج الأسرار ضمن "نسخ المعلومات كاملة"
+              </label>
+
+              <label class="flex items-center gap-2 text-sm text-slate-100">
+                <input id="revealSecretsToggle" type="checkbox" class="accent-blue-500">
+                إظهار الأسرار على الشاشة (بدون إخفاء)
+              </label>
+
+              <label class="flex items-center gap-2 text-sm text-slate-100">
+                <input id="snowToggle" type="checkbox" class="accent-blue-500">
+                مؤثر الثلج
+              </label>
+
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-2 pt-3">
+            <button id="saveSettingsBtn"
+              class="press-glow soft bg-blue-600 hover:bg-blue-500 text-white font-extrabold px-5 py-2 rounded-2xl">
+              <i class="fa-solid fa-floppy-disk ml-2"></i> حفظ الإعدادات
+            </button>
+
+            <button id="resetSettingsBtn"
+              class="press-glow soft bg-slate-800/55 hover:bg-slate-700/60 border border-slate-700/60 text-white font-bold px-5 py-2 rounded-2xl">
+              <i class="fa-solid fa-rotate-left ml-2 text-slate-200"></i> إرجاع الافتراضي
+            </button>
+          </div>
+
+          <p class="text-[11px] text-slate-300 mt-2">
+            ⚠️ تفعيل نسخ/إظهار الأسرار مسؤوليتك. أي شخص يفتح الصفحة على نفس الجهاز يقدر يشوفها.
+          </p>
+        </div>
+
+        <!-- Tools -->
+        <div class="border-t border-slate-700/40 pt-4">
+          <div class="text-sm text-slate-200 font-bold mb-3">🧰 أدوات المخزون الحالي</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+
+            <button id="openEditorBtn"
+              class="press-glow soft bg-emerald-700/20 hover:bg-emerald-700/28 border border-emerald-700/30 text-emerald-100 font-bold px-4 py-2 rounded-2xl text-sm">
+              <i class="fa-solid fa-list-check ml-2 text-emerald-300"></i> إدارة العناصر
+            </button>
+
+            <button id="resetPulledCounterBtn"
+              class="press-glow soft bg-indigo-700/20 hover:bg-indigo-700/28 border border-indigo-700/30 text-indigo-100 font-bold px-4 py-2 rounded-2xl text-sm">
+              <i class="fa-solid fa-0 ml-2 text-indigo-300"></i> تصفير عداد السحب
+            </button>
+
+            <button id="clearActiveInventoryBtn"
+              class="press-glow soft bg-red-700/20 hover:bg-red-700/28 border border-red-700/30 text-red-100 font-bold px-4 py-2 rounded-2xl text-sm">
+              <i class="fa-solid fa-trash ml-2 text-red-300"></i> تصفير هذا المخزون
+            </button>
+
+          </div>
+        </div>
+
+        <!-- Inventories -->
+        <div class="border-t border-slate-700/40 pt-4">
+          <div class="text-sm text-slate-200 font-bold mb-2">📦 المخازن الحالية</div>
+          <div id="invListWrap" class="space-y-2"></div>
+
+          <p class="text-[11px] text-slate-300 mt-3">
+            ⚠️ هذه النسخة محلية. الحذف يحذف من نفس الجهاز والمتصفح.
+          </p>
+        </div>
+
+      </div>
+  </div>
+
+  <!-- Links Modal -->
+  <div id="linksModal" class="modal-backdrop">
+    <div class="glass-panel soft modal-panel w-full max-w-2xl rounded-3xl p-5 border border-slate-700/50 shadow-2xl">
+      <div class="flex justify-between items-center mb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-link text-sky-300"></i>
+          <span class="font-extrabold text-white">روابط</span>
+          <span class="text-xs text-slate-300">اضغط على اسم الرابط لنسخ — زر فتح للفتح</span>
+        </div>
+        <div class="flex gap-2">
+          <button id="addLinkBtn"
+            class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold text-slate-100"
+            title="إضافة رابط">
+            <i class="fa-solid fa-plus ml-2 text-sky-200"></i> +
+          </button>
+          <button id="closeLinksBtn" class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold">
+            إغلاق
+          </button>
+        </div>
+      </div>
+
+      <div id="linksWrap" class="space-y-2"></div>
+
+      <p class="text-[11px] text-slate-300 mt-3">
+        ✳️ (إزالة) لحذف الرابط — (↑ ↓) لتحريك الرابط للأعلى أو للأسفل.
+      </p>
+    </div>
+  </div>
+
+  <!-- Copy Fallback Modal -->
+  <div id="copyModal" class="modal-backdrop">
+    <div class="glass-panel soft modal-panel w-full max-w-2xl rounded-3xl p-5 border border-slate-700/50 shadow-2xl">
+      <div class="flex justify-between items-center mb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-copy text-blue-300"></i>
+          <span class="font-extrabold text-white">نسخ يدوي</span>
+          <span class="text-xs text-slate-300">إذا ما اشتغل النسخ بالموبايل</span>
+        </div>
+        <button id="closeCopyModalBtn" class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold">
+          إغلاق
+        </button>
+      </div>
+
+      <p class="text-[12px] text-slate-300 mb-2">
+        ✅ اضغط "تحديد الكل" وبعدها انسخ (Copy) من لوحة الهاتف.
+      </p>
+
+      <textarea id="copyFallbackArea" rows="6"
+        class="w-full bg-slate-950/30 text-sm text-white p-4 rounded-2xl border border-slate-700/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition placeholder-slate-500"
+        placeholder=""></textarea>
+
+      <div class="flex flex-col sm:flex-row gap-2 pt-3">
+        <button id="selectAllCopyBtn"
+          class="press-glow soft bg-blue-600 hover:bg-blue-500 text-white font-extrabold px-5 py-2 rounded-2xl">
+          <i class="fa-solid fa-i-cursor ml-2"></i> تحديد الكل
+        </button>
+
+        <button id="tryCopyAgainBtn"
+          class="press-glow soft bg-slate-800/55 hover:bg-slate-700/60 border border-slate-700/60 text-white font-bold px-5 py-2 rounded-2xl">
+          <i class="fa-solid fa-rotate ml-2 text-slate-200"></i> محاولة نسخ مرة ثانية
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inventory Editor Modal -->
+  <div id="editorModal" class="modal-backdrop">
+    <div class="glass-panel soft modal-panel w-full max-w-5xl rounded-3xl p-5 border border-slate-700/50 shadow-2xl">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-3">
+        <div class="flex items-center gap-2 min-w-0">
+          <i class="fa-solid fa-list-check text-emerald-300"></i>
+          <span class="font-extrabold text-white">إدارة عناصر المخزون</span>
+          <span id="editorInvName" class="text-xs text-slate-300 truncate"></span>
+        </div>
+        <div class="flex gap-2 flex-wrap justify-end">
+          <button id="addItemBtn" title="إضافة عنصر"
+            class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold text-slate-100">
+            <i class="fa-solid fa-plus ml-2 text-emerald-300"></i> إضافة
+          </button>
+          <button id="closeEditorBtn" class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold">
+            إغلاق
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-slate-950/20 border border-slate-700/40 rounded-2xl p-4 space-y-3">
+        <div class="flex flex-col md:flex-row gap-2 md:items-center md:justify-between">
+          <input id="editorSearch" type="text"
+            class="w-full md:max-w-md bg-slate-950/25 text-sm text-white px-4 py-3 rounded-2xl border border-slate-700/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+            placeholder="بحث بالايميل / login..." />
+          <div class="text-xs text-slate-300">
+            المعروض: <span id="editorShownCount" class="font-bold text-slate-100">0</span>
+            • الكل: <span id="editorTotalCount" class="font-bold text-slate-100">0</span>
+          </div>
+        </div>
+
+        <div id="editorList" class="space-y-2"></div>
+
+        <div class="flex flex-col sm:flex-row gap-2 justify-between pt-2">
+          <button id="editorPrevBtn"
+            class="press-glow soft bg-slate-800/55 hover:bg-slate-700/60 border border-slate-700/60 text-white font-bold px-4 py-2 rounded-2xl text-sm">
+            <i class="fa-solid fa-chevron-right ml-2"></i> السابق
+          </button>
+          <div class="text-[11px] text-slate-400 self-center">
+            صفحة <span id="editorPageLabel">1</span>
+          </div>
+          <button id="editorNextBtn"
+            class="press-glow soft bg-slate-800/55 hover:bg-slate-700/60 border border-slate-700/60 text-white font-bold px-4 py-2 rounded-2xl text-sm">
+            التالي <i class="fa-solid fa-chevron-left mr-2"></i>
+          </button>
+        </div>
+
+        <p class="text-[11px] text-slate-300 pt-1">
+          ✳️ "نسخ السطر" ينسخ كل الحقول بنفس الفاصل الحالي.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Item Modal -->
+  <div id="editItemModal" class="modal-backdrop">
+    <div class="glass-panel soft modal-panel w-full max-w-2xl rounded-3xl p-5 border border-slate-700/50 shadow-2xl">
+      <div class="flex justify-between items-center mb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-pen-to-square text-indigo-300"></i>
+          <span id="editModalTitle" class="font-extrabold text-white">تعديل عنصر</span>
+        </div>
+        <button id="closeEditItemBtn" class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold">
+          إغلاق
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div class="space-y-1">
+          <label class="text-xs text-slate-300">Login / Email</label>
+          <input id="editLogin" type="text"
+            class="w-full bg-slate-950/25 text-sm text-white px-4 py-3 rounded-2xl border border-slate-700/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+            placeholder="example@email.com" />
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-xs text-slate-300">Password</label>
+          <input id="editPassword" type="text"
+            class="w-full bg-slate-950/25 text-sm text-white px-4 py-3 rounded-2xl border border-slate-700/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+            placeholder="password" />
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-xs text-slate-300">Authenticator Token</label>
+          <input id="editToken" type="text"
+            class="w-full bg-slate-950/25 text-sm text-white px-4 py-3 rounded-2xl border border-slate-700/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+            placeholder="token" />
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-xs text-slate-300">App Password</label>
+          <input id="editAppPassword" type="text"
+            class="w-full bg-slate-950/25 text-sm text-white px-4 py-3 rounded-2xl border border-slate-700/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+            placeholder="app password" />
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-xs text-slate-300">Authenticator URL</label>
+          <input id="editAuthUrl" type="text"
+            class="w-full bg-slate-950/25 text-sm text-white px-4 py-3 rounded-2xl border border-slate-700/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+            placeholder="https://..." />
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-xs text-slate-300">Messages URL</label>
+          <input id="editMessagesUrl" type="text"
+            class="w-full bg-slate-950/25 text-sm text-white px-4 py-3 rounded-2xl border border-slate-700/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
+            placeholder="https://..." />
+        </div>
+
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-4">
+        <button id="saveItemBtn"
+          class="press-glow soft bg-blue-600 hover:bg-blue-500 text-white font-extrabold px-4 py-3 rounded-2xl text-sm">
+          <i class="fa-solid fa-floppy-disk ml-2"></i> حفظ
+        </button>
+
+        <button id="copyLineFromEditBtn"
+          class="press-glow soft bg-slate-800/55 hover:bg-slate-700/60 border border-slate-700/60 text-white font-bold px-4 py-3 rounded-2xl text-sm">
+          <i class="fa-solid fa-copy ml-2 text-slate-200"></i> نسخ السطر
+        </button>
+
+        <button id="deleteItemBtn"
+          class="press-glow soft bg-red-700/20 hover:bg-red-700/28 border border-red-700/30 text-red-100 font-bold px-4 py-3 rounded-2xl text-sm">
+          <i class="fa-solid fa-trash ml-2 text-red-300"></i> حذف
+        </button>
+      </div>
+
+      <p class="text-[11px] text-slate-300 mt-2">
+        💡 التعديل والحذف يتم على نفس الجهاز (LocalStorage).
+      </p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================
+      // عناصر (DOM)
+      // =========================
+      const stockCountEl = document.getElementById('stockCount');
+      const pulledCountEl = document.getElementById('pulledCount');
+      const titleNameEl = document.getElementById('titleName');
+
+      const tabsWrap = document.getElementById('tabsWrap');
+      const addInvBtn = document.getElementById('addInvBtn');
+      const settingsBtn = document.getElementById('settingsBtn');
+
+      const linksBtn = document.getElementById('linksBtn');
+      const linksModal = document.getElementById('linksModal');
+      const closeLinksBtn = document.getElementById('closeLinksBtn');
+      const addLinkBtn = document.getElementById('addLinkBtn');
+      const linksWrap = document.getElementById('linksWrap');
+
+      const settingsModal = document.getElementById('settingsModal');
+      const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+      const invListWrap = document.getElementById('invListWrap');
+
+      // Settings controls (new)
+      const appTitleInput = document.getElementById('appTitleInput');
+      const delimiterInput = document.getElementById('delimiterInput');
+      const pullModeSelect = document.getElementById('pullModeSelect');
+      const allowSecretCopyToggle = document.getElementById('allowSecretCopyToggle');
+      const includeSecretsFullToggle = document.getElementById('includeSecretsFullToggle');
+      const revealSecretsToggle = document.getElementById('revealSecretsToggle');
+      const snowToggle = document.getElementById('snowToggle');
+      const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+      const resetSettingsBtn = document.getElementById('resetSettingsBtn');
+
+      const openEditorBtn = document.getElementById('openEditorBtn');
+      const resetPulledCounterBtn = document.getElementById('resetPulledCounterBtn');
+      const clearActiveInventoryBtn = document.getElementById('clearActiveInventoryBtn');
+
+      const inputSectionEl = document.getElementById('inputSection');
+      const bulkInputEl = document.getElementById('bulkInput');
+
+      const resultAreaEl = document.getElementById('resultArea');
+      const timestampEl = document.getElementById('timestamp');
+
+      const emailDisplayEl = document.getElementById('emailDisplay');
+      const passDisplayEl = document.getElementById('passDisplay');
+      const tokDisplayEl  = document.getElementById('tokDisplay');
+      const appDisplayEl  = document.getElementById('appDisplay');
+
+      const authUrlBtnEl = document.getElementById('authUrlBtn');
+      const messagesUrlBtnEl = document.getElementById('messagesUrlBtn');
+      const authUrlLabelEl = document.getElementById('authUrlLabel');
+      const messagesUrlLabelEl = document.getElementById('messagesUrlLabel');
+      const copyAuthUrlBtn = document.getElementById('copyAuthUrlBtn');
+      const copyMessagesUrlBtn = document.getElementById('copyMessagesUrlBtn');
+
+      const toggleBtn = document.getElementById('toggleBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const addBtn = document.getElementById('addBtn');
+      const pullBtn = document.getElementById('pullBtn');
+      const copyFullBtn = document.getElementById('copyFullBtn');
+
+      const restoreBtn = document.getElementById('restoreBtn');
+      const deleteLastBtn = document.getElementById('deleteLastBtn');
+
+      const moveButtonsWrap = document.getElementById('moveButtonsWrap');
+
+      const importBtn = document.getElementById('importBtn');
+      const importFile = document.getElementById('importFile');
+      const exportBtn = document.getElementById('exportBtn');
+
+      const themeBtn = document.getElementById('themeBtn');
+
+      // Toast
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+      let toastTimeout;
+
+      // Copy fallback modal
+      const copyModal = document.getElementById('copyModal');
+      const closeCopyModalBtn = document.getElementById('closeCopyModalBtn');
+      const copyFallbackArea = document.getElementById('copyFallbackArea');
+      const selectAllCopyBtn = document.getElementById('selectAllCopyBtn');
+      const tryCopyAgainBtn = document.getElementById('tryCopyAgainBtn');
+      let lastCopyAttemptText = '';
+
+      // Editor modal
+      const editorModal = document.getElementById('editorModal');
+      const closeEditorBtn = document.getElementById('closeEditorBtn');
+      const addItemBtn = document.getElementById('addItemBtn');
+      const editorInvName = document.getElementById('editorInvName');
+      const editorSearch = document.getElementById('editorSearch');
+      const editorList = document.getElementById('editorList');
+      const editorPrevBtn = document.getElementById('editorPrevBtn');
+      const editorNextBtn = document.getElementById('editorNextBtn');
+      const editorShownCount = document.getElementById('editorShownCount');
+      const editorTotalCount = document.getElementById('editorTotalCount');
+      const editorPageLabel = document.getElementById('editorPageLabel');
+
+      // Edit item modal
+      const editItemModal = document.getElementById('editItemModal');
+      const closeEditItemBtn = document.getElementById('closeEditItemBtn');
+      const editModalTitle = document.getElementById('editModalTitle');
+
+      const editLogin = document.getElementById('editLogin');
+      const editPassword = document.getElementById('editPassword');
+      const editToken = document.getElementById('editToken');
+      const editAppPassword = document.getElementById('editAppPassword');
+      const editAuthUrl = document.getElementById('editAuthUrl');
+      const editMessagesUrl = document.getElementById('editMessagesUrl');
+
+      const saveItemBtn = document.getElementById('saveItemBtn');
+      const copyLineFromEditBtn = document.getElementById('copyLineFromEditBtn');
+      const deleteItemBtn = document.getElementById('deleteItemBtn');
+
+      // =========================
+      // Helpers
+      // =========================
+      function flash(el){
+        if(!el) return;
+        el.classList.remove('flash');
+        void el.offsetWidth;
+        el.classList.add('flash');
+        setTimeout(()=> el.classList.remove('flash'), 260);
+      }
+
+      function showToast(message, type = 'info') {
+        toastMsg.textContent = message;
+        toast.className =
+          "fixed bottom-5 left-1/2 -translate-x-1/2 md:left-5 md:translate-x-0 px-5 py-3 rounded-2xl shadow-2xl transform transition-all duration-300 z-50 flex items-center gap-3 font-bold border";
+
+        if (type === 'success') {
+          toast.classList.add('bg-emerald-950/80', 'border-emerald-800/60', 'text-emerald-100');
+          toastIcon.className = "fa-solid fa-circle-check text-emerald-300";
+        } else if (type === 'error') {
+          toast.classList.add('bg-red-950/80', 'border-red-800/60', 'text-red-100');
+          toastIcon.className = "fa-solid fa-triangle-exclamation text-red-300";
+        } else if (type === 'copy') {
+          toast.classList.add('bg-blue-950/80', 'border-blue-800/60', 'text-blue-100');
+          toastIcon.className = "fa-solid fa-copy text-blue-300";
+        } else {
+          toast.classList.add('bg-slate-900/90', 'border-slate-700/70', 'text-white');
+          toastIcon.className = "fa-solid fa-info-circle text-slate-200";
+        }
+
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2300);
+      }
+
+      function openModal(el){
+        if(!el) return;
+        el.classList.add('show');
+        document.body.classList.add('modal-open');
+      }
+      function closeModal(el){
+        if(!el) return;
+        el.classList.remove('show');
+        // remove lock only if no modal remains open
+        if (!document.querySelector('.modal-backdrop.show')) {
+          document.body.classList.remove('modal-open');
+        }
+      }
+
+      async function copyText(text) {
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            return true;
+          }
+        } catch (_) {}
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.top = '-9999px';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          const ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+          return ok;
+        } catch (_) { return false; }
+      }
+
+      function openCopyModal(text){
+        lastCopyAttemptText = String(text || '');
+        if(!copyModal || !copyFallbackArea) return;
+        copyFallbackArea.value = lastCopyAttemptText;
+        openModal(copyModal);
+        setTimeout(() => {
+          try{
+            copyFallbackArea.focus();
+            copyFallbackArea.select();
+          }catch(_){}
+        }, 50);
+      }
+
+      async function copyWithFallback(text, okMsg){
+        const t = String(text || '');
+        lastCopyAttemptText = t;
+        const ok = await copyText(t);
+        if (ok) {
+          showToast(okMsg || 'تم النسخ', 'copy');
+          return true;
+        }
+        showToast('تعذر النسخ.. فتحنا النسخ اليدوي 👇', 'error');
+        openCopyModal(t);
+        return false;
+      }
+
+      function safeJsonParse(value, fallback) { try { return JSON.parse(value); } catch { return fallback; } }
+      function normalizeUrl(u){
+        const url = String(u || '').trim();
+        if(!url) return '';
+        if (!/^https?:\/\//i.test(url)) return 'https://' + url;
+        return url;
+      }
+      function maskSecret(s){
+        const v = String(s || '');
+        if(!v) return '---';
+        if (v.length <= 6) return '••••••';
+        return v.slice(0,3) + '••••••' + v.slice(-3);
+      }
+
+      function decodeDelimiter(input){
+        const raw = String(input || '').trim();
+        if (!raw) return ';';
+        if (raw === '\\t') return '\t';
+        if (raw === '\\s') return ' ';
+        return raw;
+      }
+
+      // =========================
+      // Local State
+      // =========================
+      function defaultState(){
+        return {
+          inventoriesMeta: [
+            { id:'main', name:'الأساسي', type:'main' },
+          ],
+          activeInvId: 'main',
+          store: {
+            main: { inventory: [], pulledCounter: 0, currentAccount: null }
+          },
+          quickLinks: [
+            { id:'l1', name:'أداة 1', url:'https://example.com' },
+          ]
+        };
+      }
+
+      function defaultSettings(){
+        return {
+          appTitle: 'المخزون',
+          delimiter: ';',
+          pullMode: 'fifo', // fifo | lifo | random
+          allowSecretCopy: true,
+          includeSecretsInFullCopy: true,
+          revealSecrets: false,
+          snow: true,
+        };
+      }
+
+      let inventoriesMeta = defaultState().inventoriesMeta;
+      let activeInvId = defaultState().activeInvId;
+      let store = defaultState().store;
+      let quickLinks = defaultState().quickLinks;
+      let appSettings = defaultSettings();
+
+      function S(){
+        if(!store[activeInvId]) store[activeInvId] = { inventory: [], pulledCounter: 0, currentAccount: null };
+        return store[activeInvId];
+      }
+
+      const LS_KEY = 'smartInv_local_only_v2';
+
+      function persist(){
+        try{
+          localStorage.setItem(LS_KEY, JSON.stringify({
+            v: 3,
+            inventoriesMeta,
+            activeInvId,
+            store,
+            quickLinks,
+            appSettings,
+            updatedAt: Date.now()
+          }));
+        }catch(e){
+          showToast('تعذر الحفظ محلياً (مساحة التخزين؟).', 'error');
+        }
+      }
+
+      function loadPersisted(){
+        const data = safeJsonParse(localStorage.getItem(LS_KEY), null);
+        if(!data) return;
+        if(Array.isArray(data.inventoriesMeta)) inventoriesMeta = data.inventoriesMeta;
+        if(typeof data.activeInvId === 'string') activeInvId = data.activeInvId;
+        if(data.store && typeof data.store === 'object') store = data.store;
+        if(Array.isArray(data.quickLinks)) quickLinks = data.quickLinks;
+
+        // settings (merge defaults)
+        if(data.appSettings && typeof data.appSettings === 'object'){
+          appSettings = Object.assign({}, defaultSettings(), data.appSettings);
+          // sanitize
+          appSettings.delimiter = decodeDelimiter(appSettings.delimiter);
+          if(!['fifo','lifo','random'].includes(appSettings.pullMode)) appSettings.pullMode = 'fifo';
+        }
+      }
+
+      // =========================
+      // Parsing
+      // =========================
+      // Supports:
+      // 6 fields: login;password;authenticatorToken;appPassword;authenticatorUrl;messagesUrl
+      // 4 fields (legacy): email;pass;recovery;url  => maps to token=recovery, messagesUrl=url
+      function parseLine(line) {
+        const delim = decodeDelimiter(appSettings.delimiter);
+        const parts = String(line || '').split(delim).map(p => p.trim());
+        if (parts.length < 2) return { ok: false };
+
+        const login = parts[0] || '';
+        const password = parts[1] || '';
+
+        if(!login || !password) return { ok: false };
+
+        // Skip header lines like {login};{password};...
+        if (login.includes('{login}') || login.startsWith('{login}')) return { ok: false };
+
+        if (parts.length >= 6){
+          return {
+            ok: true,
+            acc: {
+              login,
+              password,
+              authenticatorToken: parts[2] || '',
+              appPassword: parts[3] || '',
+              authenticatorUrl: normalizeUrl(parts[4] || ''),
+              messagesUrl: normalizeUrl(parts[5] || ''),
+            }
+          };
+        }
+
+        // legacy 4-field
+        return {
+          ok: true,
+          acc: {
+            login,
+            password,
+            authenticatorToken: parts[2] || '',
+            appPassword: '',
+            authenticatorUrl: '',
+            messagesUrl: normalizeUrl(parts[3] || ''),
+          }
+        };
+      }
+
+      function addToStockInternal(text) {
+        const s = S();
+        const lines = (text || '').replace(/\r/g,'').split('\n').map(l=>l.trim()).filter(Boolean);
+
+        let addedCount = 0, duplicateCount = 0, invalidCount = 0;
+
+        function existsLogin(login){ return s.inventory.some(a => a.login === login); }
+
+        for (const line of lines) {
+          const parsed = parseLine(line);
+          if (!parsed.ok) { invalidCount++; continue; }
+          const acc = parsed.acc;
+          if (existsLogin(acc.login)) { duplicateCount++; continue; }
+          s.inventory.push(acc); addedCount++;
+        }
+
+        updateUI();
+        persist();
+        return { addedCount, duplicateCount, invalidCount };
+      }
+
+      function lineFromAcc(acc){
+        const d = decodeDelimiter(appSettings.delimiter);
+        const a = acc || {};
+        return [
+          a.login || '',
+          a.password || '',
+          a.authenticatorToken || '',
+          a.appPassword || '',
+          a.authenticatorUrl || '',
+          a.messagesUrl || ''
+        ].join(d);
+      }
+
+      // =========================
+      // UI
+      // =========================
+      function updateHeaderTitle(){
+        const invName = inventoriesMeta.find(x=>x.id===activeInvId)?.name || '';
+        const base = String(appSettings.appTitle || 'المخزون').trim() || 'المخزون';
+        titleNameEl.textContent = invName ? `${base} — ${invName}` : base;
+        document.title = `${base} | نسخة محلية`;
+      }
+
+      function buildTabs(){
+        tabsWrap.innerHTML = '';
+        for (const inv of inventoriesMeta) {
+          const btn = document.createElement('button');
+          btn.className = "press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold text-slate-100";
+          if (inv.id === activeInvId) btn.classList.add('tab-active');
+          btn.innerHTML = `<i class="fa-solid fa-layer-group ml-2 text-blue-300"></i>${inv.name}`;
+          btn.addEventListener('click', () => setActiveInventory(inv.id));
+          tabsWrap.appendChild(btn);
+        }
+      }
+
+      function setStockCounterColor(stockLen) {
+        if (stockLen === 0) stockCountEl.className = "text-2xl font-extrabold text-red-400";
+        else if (stockLen < 5) stockCountEl.className = "text-2xl font-extrabold text-amber-300";
+        else stockCountEl.className = "text-2xl font-extrabold text-emerald-300";
+      }
+
+      function displayResult(acc) {
+        if (!acc) return;
+        resultAreaEl.classList.remove('hidden');
+
+        const reveal = !!appSettings.revealSecrets;
+
+        emailDisplayEl.textContent = acc.login || '---';
+
+        passDisplayEl.textContent  = reveal ? (acc.password || '---') : maskSecret(acc.password);
+        tokDisplayEl.textContent   = reveal ? (acc.authenticatorToken || '---') : maskSecret(acc.authenticatorToken);
+        appDisplayEl.textContent   = reveal ? (acc.appPassword || '---') : maskSecret(acc.appPassword);
+
+        // Put full value in title so user can long-press on mobile if needed
+        passDisplayEl.title = acc.password || '';
+        tokDisplayEl.title  = acc.authenticatorToken || '';
+        appDisplayEl.title  = acc.appPassword || '';
+
+        const aUrl = acc.authenticatorUrl || '';
+        const mUrl = acc.messagesUrl || '';
+
+        authUrlBtnEl.href = aUrl || '#';
+        messagesUrlBtnEl.href = mUrl || '#';
+
+        authUrlLabelEl.textContent = aUrl ? aUrl : '---';
+        messagesUrlLabelEl.textContent = mUrl ? mUrl : '---';
+
+        timestampEl.textContent = new Date().toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+
+      function updateUI() {
+        const s = S();
+        stockCountEl.textContent = s.inventory.length;
+        pulledCountEl.textContent = s.pulledCounter;
+        setStockCounterColor(s.inventory.length);
+
+        const last = s.currentAccount;
+        if (last) displayResult(last);
+        else resultAreaEl.classList.add('hidden');
+      }
+
+      function setActiveInventory(id, silent=false){
+        if (!inventoriesMeta.some(x => x.id === id)) return;
+        activeInvId = id;
+        updateHeaderTitle();
+        buildTabs();
+        updateUI();
+        renderMoveButtons();
+        if(!silent) persist();
+      }
+
+      function createNewInventory(){
+        flash(addInvBtn);
+        const name = prompt('اكتب اسم المخزون الجديد:');
+        if (!name || !String(name).trim()) { showToast('تم الإلغاء (اسم المخزون فارغ).', 'error'); return; }
+        const n = String(name).trim();
+        if (inventoriesMeta.some(x => x.name === n)) { showToast('هذا الاسم موجود بالفعل. اختر اسم مختلف.', 'error'); return; }
+
+        const id = 'inv_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,7);
+        inventoriesMeta.push({ id, name: n, type:'custom' });
+        store[id] = { inventory: [], pulledCounter: 0, currentAccount: null };
+
+        buildTabs();
+        setActiveInventory(id);
+        showToast('تم إنشاء مخزون جديد ✅', 'success');
+        persist();
+      }
+
+      function addToStock() {
+        flash(addBtn);
+        const text = bulkInputEl.value;
+        if (!text.trim()) { showToast('الحقل فارغ!', 'error'); return; }
+        const { addedCount, duplicateCount, invalidCount } = addToStockInternal(text);
+        bulkInputEl.value = '';
+
+        const tabName = inventoriesMeta.find(x=>x.id===activeInvId)?.name || 'المخزون';
+        let msg = `(${tabName}) تمت إضافة ${addedCount} عنصر.`;
+        if (duplicateCount) msg += ` (مكرر: ${duplicateCount})`;
+        if (invalidCount) msg += ` (غير صالح: ${invalidCount})`;
+        showToast(msg, addedCount ? 'success' : 'error');
+      }
+
+      function pullAccount() {
+        flash(pullBtn);
+        const s = S();
+        if (s.inventory.length === 0) { showToast('المخزون فارغ.', 'error'); return; }
+
+        const mode = appSettings.pullMode || 'fifo';
+        let acc = null;
+
+        if (mode === 'random') {
+          const idx = Math.floor(Math.random() * s.inventory.length);
+          acc = s.inventory.splice(idx, 1)[0];
+        } else if (mode === 'lifo') {
+          acc = s.inventory.pop();
+        } else {
+          acc = s.inventory.splice(0, 1)[0];
+        }
+
+        if(!acc){ showToast('ماكو عنصر للسحب.', 'error'); return; }
+
+        s.currentAccount = acc;
+        s.pulledCounter++;
+        displayResult(acc);
+        updateUI();
+        persist();
+        showToast('تم سحب العنصر بنجاح', 'success');
+      }
+
+      function clearStorage() {
+        flash(clearBtn);
+        const tabName = inventoriesMeta.find(x=>x.id===activeInvId)?.name || 'المخزون';
+        if (!confirm(`هل أنت متأكد من حذف مخزون (${tabName}) بالكامل؟`)) return;
+
+        const s = S();
+        s.inventory = [];
+        s.pulledCounter = 0;
+        s.currentAccount = null;
+
+        updateUI();
+        persist();
+        showToast('تم تصفير المخزون', 'success');
+      }
+
+      async function copyField(type) {
+        const acc = S().currentAccount;
+        if (!acc) { showToast('لا يوجد عنصر مسحوب للنسخ.', 'error'); return; }
+
+        if (type === 'email') {
+          return copyWithFallback(String(acc.login || ''), 'تم نسخ الايميل');
+        }
+
+        if (type === 'authUrl') {
+          return copyWithFallback(String(acc.authenticatorUrl || ''), 'تم نسخ رابط المصادقة');
+        }
+
+        if (type === 'messagesUrl') {
+          return copyWithFallback(String(acc.messagesUrl || ''), 'تم نسخ رابط الرسائل');
+        }
+
+        // Secrets (enabled by settings)
+        if (!appSettings.allowSecretCopy) {
+          showToast('نسخ الأسرار مطفي من الإعدادات.', 'error');
+          return;
+        }
+
+        if (type === 'password') {
+          return copyWithFallback(String(acc.password || ''), 'تم نسخ كلمة المرور');
+        }
+        if (type === 'token') {
+          return copyWithFallback(String(acc.authenticatorToken || ''), 'تم نسخ رمز المصادقة');
+        }
+        if (type === 'appPassword') {
+          return copyWithFallback(String(acc.appPassword || ''), 'تم نسخ App Password');
+        }
+      }
+
+      async function copyFullCombo() {
+        flash(copyFullBtn);
+        const acc = S().currentAccount;
+        if (!acc) { showToast('لا يوجد عنصر مسحوب لنسخ المعلومات.', 'error'); return; }
+
+        const inc = !!appSettings.includeSecretsInFullCopy;
+        const textToCopy =
+          `الايميل: ${acc.login || ''}\n` +
+          `الباسورد: ${inc ? (acc.password || '') : '[مخفي]'}\n` +
+          `رمز المصادقة: ${inc ? (acc.authenticatorToken || '') : '[مخفي]'}\n` +
+          `App Password: ${inc ? (acc.appPassword || '') : '[مخفي]'}\n` +
+          `رابط المصادقة: ${acc.authenticatorUrl || ''}\n` +
+          `رابط الرسائل: ${acc.messagesUrl || ''}`;
+
+        await copyWithFallback(textToCopy, inc ? 'تم نسخ المعلومات كاملة' : 'تم نسخ المعلومات (بدون أسرار)');
+      }
+
+      function deleteLastPulled() {
+        flash(deleteLastBtn);
+        const s = S();
+        if (!s.currentAccount) { showToast('لا يوجد عنصر مسحوب.', 'error'); return; }
+        s.currentAccount = null;
+        updateUI();
+        persist();
+        showToast('تم حذف العنصر من الشاشة', 'success');
+      }
+
+      function restoreLastPulled() {
+        flash(restoreBtn);
+        const s = S();
+        const acc = s.currentAccount;
+        if (!acc) { showToast('لا يوجد عنصر مسحوب للاسترجاع.', 'error'); return; }
+        if (!s.inventory.some(a => a.login === acc.login)) s.inventory.unshift(acc);
+        if (s.pulledCounter > 0) s.pulledCounter--;
+        s.currentAccount = null;
+        updateUI();
+        persist();
+        showToast('تم استرجاع العنصر إلى المخزون', 'success');
+      }
+
+      function moveAccountTo(targetInvId, targetLabel){
+        const s = S();
+        const acc = s.currentAccount;
+        if (!acc) { showToast('لا يوجد عنصر مسحوب للنقل.', 'error'); return; }
+
+        if (!store[targetInvId]) store[targetInvId] = { inventory: [], pulledCounter: 0, currentAccount: null };
+        const sTarget = store[targetInvId];
+
+        if (sTarget.inventory.some(a => a.login === acc.login)) {
+          showToast(`هذا العنصر موجود بالفعل في مخزون ${targetLabel}.`, 'error');
+          return;
+        }
+
+        sTarget.inventory.unshift(acc);
+        s.currentAccount = null;
+
+        updateUI();
+        persist();
+        showToast(`تم نقل العنصر إلى مخزون ${targetLabel}`, 'success');
+      }
+
+      function renderMoveButtons(){
+        moveButtonsWrap.innerHTML = '';
+        const targets = inventoriesMeta.filter(x => x.id !== activeInvId);
+        if (!targets.length) return;
+
+        for (const t of targets) {
+          const btn = document.createElement('button');
+          btn.className = "press-glow soft bg-slate-800/55 hover:bg-slate-700/60 border border-slate-700/60 text-white font-bold py-3 rounded-2xl flex items-center justify-center gap-2";
+          btn.innerHTML = `<i class="fa-solid fa-right-left text-slate-200"></i><span>النقل إلى ${t.name}</span>`;
+          btn.addEventListener('click', () => moveAccountTo(t.id, t.name));
+          moveButtonsWrap.appendChild(btn);
+        }
+      }
+
+      async function importTxtFile(file) {
+        if (!file) return;
+        flash(importBtn);
+        if (!file.name.toLowerCase().endsWith('.txt')) { showToast('الرجاء اختيار ملف TXT فقط', 'error'); return; }
+        try {
+          const content = await file.text();
+          const { addedCount, duplicateCount, invalidCount } = addToStockInternal(content);
+          let msg = `تم استيراد الملف: +${addedCount}`;
+          if (duplicateCount) msg += ` (مكرر: ${duplicateCount})`;
+          if (invalidCount) msg += ` (غير صالح: ${invalidCount})`;
+          showToast(msg, addedCount ? 'success' : 'error');
+        } catch (e) { showToast('فشل قراءة الملف', 'error'); }
+      }
+
+      function exportStockToTxt() {
+        flash(exportBtn);
+        const s = S();
+        if (!s.inventory.length) { showToast('المخزون فارغ.', 'error'); return; }
+
+        const d = decodeDelimiter(appSettings.delimiter);
+        const content = s.inventory.map(acc =>
+          `${acc.login}${d}${acc.password}${d}${acc.authenticatorToken}${d}${acc.appPassword}${d}${acc.authenticatorUrl}${d}${acc.messagesUrl}`
+        ).join('\n');
+
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const meta = inventoriesMeta.find(x=>x.id===activeInvId);
+        const safeName = (meta?.name || 'inventory').replace(/[^\w\u0600-\u06FF]+/g,'_');
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${safeName}_${new Date().toISOString().slice(0,10)}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast(`تم تصدير ${s.inventory.length} عنصر`, 'success');
+      }
+
+      // =========================
+      // Settings
+      // =========================
+      function syncSettingsForm(){
+        if(!appTitleInput) return;
+        appTitleInput.value = String(appSettings.appTitle || 'المخزون');
+        delimiterInput.value = String(appSettings.delimiter || ';');
+        pullModeSelect.value = String(appSettings.pullMode || 'fifo');
+        allowSecretCopyToggle.checked = !!appSettings.allowSecretCopy;
+        includeSecretsFullToggle.checked = !!appSettings.includeSecretsInFullCopy;
+        revealSecretsToggle.checked = !!appSettings.revealSecrets;
+        snowToggle.checked = appSettings.snow !== false;
+      }
+
+      function applySettingsFromForm(){
+        if(!appTitleInput) return;
+
+        appSettings.appTitle = String(appTitleInput.value || '').trim() || 'المخزون';
+
+        appSettings.delimiter = decodeDelimiter(delimiterInput.value);
+        if(!appSettings.delimiter) appSettings.delimiter = ';';
+
+        const mode = String(pullModeSelect.value || 'fifo');
+        appSettings.pullMode = ['fifo','lifo','random'].includes(mode) ? mode : 'fifo';
+
+        appSettings.allowSecretCopy = !!allowSecretCopyToggle.checked;
+        appSettings.includeSecretsInFullCopy = !!includeSecretsFullToggle.checked;
+        appSettings.revealSecrets = !!revealSecretsToggle.checked;
+        appSettings.snow = !!snowToggle.checked;
+
+        applySettingsToUI();
+        persist();
+        showToast('تم حفظ الإعدادات ✅', 'success');
+      }
+
+      function resetSettings(){
+        appSettings = defaultSettings();
+        syncSettingsForm();
+        applySettingsToUI();
+        persist();
+        showToast('تم إرجاع الإعدادات الافتراضية', 'success');
+      }
+
+      function openSettings(){
+        flash(settingsBtn);
+        syncSettingsForm();
+        renderSettingsInventories();
+        openModal(settingsModal);
+      }
+      function closeSettings(){
+        closeModal(settingsModal);
+      }
+
+      function deleteInventory(invId){
+        const meta = inventoriesMeta.find(x=>x.id===invId);
+        if (!meta) return;
+        if (!confirm(`هل تريد حذف مخزون: (${meta.name})؟`)) return;
+
+        delete store[invId];
+        inventoriesMeta = inventoriesMeta.filter(x => x.id !== invId);
+
+        if (activeInvId === invId) activeInvId = inventoriesMeta[0]?.id || 'main';
+
+        buildTabs();
+        setActiveInventory(activeInvId);
+        renderSettingsInventories();
+        persist();
+        showToast('تم حذف المخزون ✅', 'success');
+      }
+
+      function renameInventory(invId){
+        const meta = inventoriesMeta.find(x=>x.id===invId);
+        if(!meta) return;
+        const n = prompt('الاسم الجديد:', meta.name);
+        if(!n || !String(n).trim()) return;
+        const name = String(n).trim();
+        if(inventoriesMeta.some(x => x.name === name && x.id !== invId)){
+          showToast('هذا الاسم مستخدم.', 'error'); return;
+        }
+        meta.name = name;
+        buildTabs();
+        renderSettingsInventories();
+        updateHeaderTitle();
+        persist();
+        showToast('تم تغيير الاسم', 'success');
+      }
+
+      function renderSettingsInventories(){
+        invListWrap.innerHTML = '';
+        for (const inv of inventoriesMeta) {
+          const row = document.createElement('div');
+          row.className = "flex flex-col md:flex-row gap-2 md:items-center md:justify-between bg-slate-950/25 border border-slate-700/40 rounded-2xl p-3";
+
+          const left = document.createElement('div');
+          left.className = "text-sm text-slate-100";
+          left.innerHTML = `<div class="font-extrabold">${inv.name}</div><div class="text-xs text-slate-300">ID: ${inv.id}</div>`;
+
+          const right = document.createElement('div');
+          right.className = "flex gap-2 flex-wrap";
+
+          const openBtn = document.createElement('button');
+          openBtn.className = "press-glow soft bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700/60 text-white font-bold px-4 py-2 rounded-2xl text-sm";
+          openBtn.innerHTML = `<i class="fa-solid fa-arrow-right-arrow-left ml-2 text-slate-200"></i>فتح`;
+          openBtn.addEventListener('click', () => { setActiveInventory(inv.id); });
+
+          const renameBtn = document.createElement('button');
+          renameBtn.className = "press-glow soft bg-indigo-700/20 hover:bg-indigo-700/28 border border-indigo-700/30 text-indigo-100 font-bold px-4 py-2 rounded-2xl text-sm";
+          renameBtn.innerHTML = `<i class="fa-solid fa-pen ml-2 text-indigo-300"></i>تسمية`;
+          renameBtn.addEventListener('click', () => renameInventory(inv.id));
+
+          const delBtn = document.createElement('button');
+          delBtn.className = "press-glow soft bg-red-700/20 hover:bg-red-700/28 border border-red-700/30 text-red-100 font-bold px-4 py-2 rounded-2xl text-sm";
+          delBtn.innerHTML = `<i class="fa-solid fa-trash ml-2 text-red-300"></i>حذف`;
+          delBtn.addEventListener('click', () => deleteInventory(inv.id));
+
+          right.appendChild(openBtn);
+          right.appendChild(renameBtn);
+          if (inventoriesMeta.length > 1) right.appendChild(delBtn);
+
+          row.appendChild(left);
+          row.appendChild(right);
+          invListWrap.appendChild(row);
+        }
+      }
+
+      function resetPulledCounter(){
+        const s = S();
+        s.pulledCounter = 0;
+        persist();
+        updateUI();
+        showToast('تم تصفير عداد السحب', 'success');
+      }
+
+      // =========================
+      // Links
+      // =========================
+      function openLinks(){
+        flash(linksBtn);
+        renderLinks();
+        openModal(linksModal);
+      }
+      function closeLinks(){
+        closeModal(linksModal);
+      }
+
+      function swapLinks(i, j){
+        if (i < 0 || j < 0) return;
+        if (i >= quickLinks.length || j >= quickLinks.length) return;
+        const tmp = quickLinks[i];
+        quickLinks[i] = quickLinks[j];
+        quickLinks[j] = tmp;
+        persist();
+        renderLinks();
+      }
+
+      function removeLinkById(id){
+        const item = quickLinks.find(x => x.id === id);
+        if (!item) return;
+        if (!confirm(`إزالة الرابط: ${item.name} ؟`)) return;
+        quickLinks = quickLinks.filter(x => x.id !== id);
+        persist();
+        renderLinks();
+        showToast('تم إزالة الرابط', 'success');
+      }
+
+      function renderLinks(){
+        linksWrap.innerHTML = '';
+
+        for (let idx = 0; idx < quickLinks.length; idx++) {
+          const item = quickLinks[idx];
+
+          const row = document.createElement('div');
+          row.className = "bg-slate-950/20 border border-slate-700/40 rounded-2xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3";
+
+          const left = document.createElement('button');
+          left.className = "min-w-0 text-right flex-1";
+          left.innerHTML = `
+            <div class="font-extrabold text-white truncate hover:underline" title="اضغط للنسخ">${item.name || 'رابط'}</div>
+            <div class="text-xs text-slate-300 mt-1 break-words">${item.url || ''}</div>
+          `;
+          left.addEventListener('click', async () => {
+            await copyWithFallback(String(item.url || ''), 'تم نسخ الرابط');
+          });
+
+          const right = document.createElement('div');
+          right.className = "flex gap-2 flex-shrink-0 flex-wrap justify-start sm:justify-end";
+
+          const upBtn = document.createElement('button');
+          upBtn.className = "press-glow soft bg-slate-800/55 hover:bg-slate-700/60 border border-slate-700/60 text-white font-bold px-3 py-2 rounded-2xl text-sm";
+          upBtn.textContent = '↑';
+          upBtn.disabled = idx === 0;
+          upBtn.style.opacity = idx === 0 ? '.45' : '1';
+          upBtn.addEventListener('click', () => swapLinks(idx, idx - 1));
+
+          const downBtn = document.createElement('button');
+          downBtn.className = "press-glow soft bg-slate-800/55 hover:bg-slate-700/60 border border-slate-700/60 text-white font-bold px-3 py-2 rounded-2xl text-sm";
+          downBtn.textContent = '↓';
+          downBtn.disabled = idx === quickLinks.length - 1;
+          downBtn.style.opacity = idx === quickLinks.length - 1 ? '.45' : '1';
+          downBtn.addEventListener('click', () => swapLinks(idx, idx + 1));
+
+          const openBtn = document.createElement('button');
+          openBtn.className = "press-glow soft bg-emerald-700/20 hover:bg-emerald-700/28 border border-emerald-700/30 text-emerald-100 font-bold px-4 py-2 rounded-2xl text-sm";
+          openBtn.textContent = 'فتح';
+          openBtn.addEventListener('click', () => {
+            const u = item.url || '';
+            if(!u) return;
+            window.open(u, '_blank', 'noopener');
+          });
+
+          const removeBtn = document.createElement('button');
+          removeBtn.className = "press-glow soft bg-red-700/20 hover:bg-red-700/28 border border-red-700/30 text-red-100 font-bold px-4 py-2 rounded-2xl text-sm";
+          removeBtn.textContent = 'إزالة';
+          removeBtn.addEventListener('click', () => removeLinkById(item.id));
+
+          right.appendChild(upBtn);
+          right.appendChild(downBtn);
+          right.appendChild(openBtn);
+          right.appendChild(removeBtn);
+
+          row.appendChild(left);
+          row.appendChild(right);
+          linksWrap.appendChild(row);
+        }
+      }
+
+      function addLink(){
+        flash(addLinkBtn);
+        const name = prompt('اسم الرابط:');
+        if (!name || !String(name).trim()) { showToast('تم الإلغاء (الاسم فارغ).', 'error'); return; }
+        const urlIn = prompt('الرابط:');
+        if (!urlIn || !String(urlIn).trim()) { showToast('تم الإلغاء (الرابط فارغ).', 'error'); return; }
+        const url = normalizeUrl(urlIn);
+        if (!url) { showToast('الرابط غير صحيح.', 'error'); return; }
+
+        const id = 'l_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6);
+        quickLinks.push({ id, name: String(name).trim(), url });
+        persist();
+        renderLinks();
+        showToast('تمت إضافة الرابط ✅', 'success');
+      }
+
+      // =========================
+      // Theme
+      // =========================
+      function applyTheme(next){
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem('smartInv_theme', next);
+        themeBtn.innerHTML = next === 'light'
+          ? '<i class="fa-solid fa-sun ml-2 text-amber-200"></i> نهار/ليل'
+          : '<i class="fa-solid fa-moon ml-2 text-indigo-200"></i> نهار/ليل';
+      }
+      const savedTheme = localStorage.getItem('smartInv_theme') || 'dark';
+      applyTheme(savedTheme);
+
+      // =========================
+      // Editor (manage items)
+      // =========================
+      const EDIT_PAGE_SIZE = 40;
+      let editorPage = 0;
+      let editingIndex = null; // index in inventory array (global)
+      let editorFilter = '';
+
+      function openEditor(){
+        flash(openEditorBtn);
+        editorPage = 0;
+        editorFilter = '';
+        if(editorSearch) editorSearch.value = '';
+        const name = inventoriesMeta.find(x=>x.id===activeInvId)?.name || '';
+        if(editorInvName) editorInvName.textContent = name ? `(${name})` : '';
+        renderEditor();
+        openModal(editorModal);
+      }
+      function closeEditor(){
+        closeModal(editorModal);
+      }
+
+      function getFilteredIndices(){
+        const s = S();
+        const term = String(editorFilter || '').trim().toLowerCase();
+        const idxs = [];
+        for(let i=0;i<s.inventory.length;i++){
+          const acc = s.inventory[i];
+          const login = String(acc.login || '').toLowerCase();
+          if(!term || login.includes(term)) idxs.push(i);
+        }
+        return idxs;
+      }
+
+      function renderEditor(){
+        if(!editorList) return;
+        const s = S();
+        const idxs = getFilteredIndices();
+        const total = idxs.length;
+
+        const pageCount = Math.max(1, Math.ceil(total / EDIT_PAGE_SIZE));
+        if (editorPage >= pageCount) editorPage = pageCount - 1;
+        if (editorPage < 0) editorPage = 0;
+
+        const from = editorPage * EDIT_PAGE_SIZE;
+        const to = Math.min(total, from + EDIT_PAGE_SIZE);
+        const pageIdxs = idxs.slice(from, to);
+
+        editorTotalCount.textContent = String(total);
+        editorShownCount.textContent = String(pageIdxs.length);
+        editorPageLabel.textContent = `${editorPage + 1} / ${pageCount}`;
+
+        editorPrevBtn.disabled = editorPage === 0;
+        editorPrevBtn.style.opacity = editorPage === 0 ? '.45' : '1';
+        editorNextBtn.disabled = editorPage >= pageCount - 1;
+        editorNextBtn.style.opacity = editorPage >= pageCount - 1 ? '.45' : '1';
+
+        if (!s.inventory.length) {
+          editorList.innerHTML = `<div class="text-center text-slate-300 text-sm py-6">المخزون فارغ.</div>`;
+          return;
+        }
+
+        if (!pageIdxs.length) {
+          editorList.innerHTML = `<div class="text-center text-slate-300 text-sm py-6">ماكو نتائج.</div>`;
+          return;
+        }
+
+        const rows = pageIdxs.map(globalIndex => {
+          const acc = s.inventory[globalIndex] || {};
+          const a = String(acc.authenticatorUrl || '');
+          const m = String(acc.messagesUrl || '');
+          return `
+            <div class="bg-slate-950/25 border border-slate-700/40 rounded-2xl p-3">
+              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div class="min-w-0 flex-1">
+                  <div class="text-[11px] text-slate-400">#${globalIndex + 1}</div>
+                  <div class="font-mono text-sky-300 truncate">${acc.login || '---'}</div>
+                  <div class="text-[11px] text-slate-400 truncate">Auth: ${a || '---'}</div>
+                  <div class="text-[11px] text-slate-400 truncate">Msg: ${m || '---'}</div>
+                </div>
+                <div class="flex gap-2 flex-wrap justify-end">
+                  <button data-act="copyLine" data-idx="${globalIndex}"
+                    class="press-glow soft bg-slate-800/55 hover:bg-slate-700/60 border border-slate-700/60 text-white font-bold px-3 py-2 rounded-2xl text-xs">
+                    نسخ السطر
+                  </button>
+                  <button data-act="edit" data-idx="${globalIndex}"
+                    class="press-glow soft bg-indigo-700/20 hover:bg-indigo-700/28 border border-indigo-700/30 text-indigo-100 font-bold px-3 py-2 rounded-2xl text-xs">
+                    تعديل
+                  </button>
+                  <button data-act="delete" data-idx="${globalIndex}"
+                    class="press-glow soft bg-red-700/20 hover:bg-red-700/28 border border-red-700/30 text-red-100 font-bold px-3 py-2 rounded-2xl text-xs">
+                    حذف
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        editorList.innerHTML = rows;
+      }
+
+      function openEditItem(indexOrNull){
+        editingIndex = (typeof indexOrNull === 'number') ? indexOrNull : null;
+        const isEdit = editingIndex !== null;
+
+        editModalTitle.textContent = isEdit ? 'تعديل عنصر' : 'إضافة عنصر';
+        deleteItemBtn.style.display = isEdit ? 'block' : 'none';
+
+        if (isEdit) {
+          const acc = S().inventory[editingIndex] || {};
+          editLogin.value = acc.login || '';
+          editPassword.value = acc.password || '';
+          editToken.value = acc.authenticatorToken || '';
+          editAppPassword.value = acc.appPassword || '';
+          editAuthUrl.value = acc.authenticatorUrl || '';
+          editMessagesUrl.value = acc.messagesUrl || '';
+        } else {
+          editLogin.value = '';
+          editPassword.value = '';
+          editToken.value = '';
+          editAppPassword.value = '';
+          editAuthUrl.value = '';
+          editMessagesUrl.value = '';
+        }
+
+        openModal(editItemModal);
+        setTimeout(() => { try { editLogin.focus(); } catch(_){} }, 60);
+      }
+
+      function closeEditItem(){
+        closeModal(editItemModal);
+      }
+
+      function validateAccObj(obj){
+        const login = String(obj.login || '').trim();
+        const password = String(obj.password || '').trim();
+        if (!login || !password) return { ok:false, msg:'لازم Login و Password.' };
+        return { ok:true };
+      }
+
+      function saveEditItem(){
+        const s = S();
+
+        const obj = {
+          login: String(editLogin.value || '').trim(),
+          password: String(editPassword.value || '').trim(),
+          authenticatorToken: String(editToken.value || '').trim(),
+          appPassword: String(editAppPassword.value || '').trim(),
+          authenticatorUrl: normalizeUrl(editAuthUrl.value || ''),
+          messagesUrl: normalizeUrl(editMessagesUrl.value || ''),
+        };
+
+        const v = validateAccObj(obj);
+        if(!v.ok){ showToast(v.msg, 'error'); return; }
+
+        // duplicate check on login
+        const existsAt = s.inventory.findIndex(a => a.login === obj.login);
+        if (editingIndex === null) {
+          if (existsAt !== -1) { showToast('هذا الـ Login موجود بالفعل.', 'error'); return; }
+          s.inventory.push(obj);
+          persist();
+          updateUI();
+          renderEditor();
+          showToast('تمت الإضافة ✅', 'success');
+          closeEditItem();
+          return;
+        }
+
+        // edit mode
+        if (existsAt !== -1 && existsAt !== editingIndex) {
+          showToast('هذا الـ Login موجود بصف ثاني.', 'error');
+          return;
+        }
+
+        s.inventory[editingIndex] = obj;
+
+        persist();
+        updateUI();
+        renderEditor();
+        showToast('تم الحفظ ✅', 'success');
+        closeEditItem();
+      }
+
+      function deleteEditItem(){
+        const s = S();
+        if (editingIndex === null) return;
+        const acc = s.inventory[editingIndex];
+        const label = acc?.login ? `(${acc.login})` : '';
+        if (!confirm(`حذف هذا العنصر ${label} ؟`)) return;
+
+        s.inventory.splice(editingIndex, 1);
+        editingIndex = null;
+
+        persist();
+        updateUI();
+        renderEditor();
+        showToast('تم الحذف ✅', 'success');
+        closeEditItem();
+      }
+
+      async function copyLineFromEdit(){
+        const obj = {
+          login: String(editLogin.value || '').trim(),
+          password: String(editPassword.value || '').trim(),
+          authenticatorToken: String(editToken.value || '').trim(),
+          appPassword: String(editAppPassword.value || '').trim(),
+          authenticatorUrl: normalizeUrl(editAuthUrl.value || ''),
+          messagesUrl: normalizeUrl(editMessagesUrl.value || ''),
+        };
+        await copyWithFallback(lineFromAcc(obj), 'تم نسخ السطر');
+      }
+
+      // =========================
+      // Apply settings to UI
+      // =========================
+      let snowEnabled = true;
+      function applySettingsToUI(){
+        updateHeaderTitle();
+        updateUI();
+
+        snowEnabled = appSettings.snow !== false;
+        const canvas = document.getElementById('snowCanvas');
+        if (canvas) canvas.style.display = snowEnabled ? 'block' : 'none';
+      }
+
+      // =========================
+      // Events
+      // =========================
+      themeBtn.addEventListener('click', ()=>{
+        flash(themeBtn);
+        const cur = document.documentElement.dataset.theme || 'dark';
+        applyTheme(cur === 'dark' ? 'light' : 'dark');
+      });
+
+      toggleBtn.addEventListener('click', () => { flash(toggleBtn); inputSectionEl.classList.toggle('hidden'); });
+      clearBtn.addEventListener('click', clearStorage);
+      addBtn.addEventListener('click', addToStock);
+      pullBtn.addEventListener('click', pullAccount);
+      copyFullBtn.addEventListener('click', copyFullCombo);
+
+      restoreBtn.addEventListener('click', restoreLastPulled);
+      deleteLastBtn.addEventListener('click', deleteLastPulled);
+
+      importBtn.addEventListener('click', () => { flash(importBtn); importFile.click(); });
+      importFile.addEventListener('change', async () => {
+        const file = importFile.files && importFile.files[0] ? importFile.files[0] : null;
+        await importTxtFile(file);
+        importFile.value = '';
+      });
+
+      exportBtn.addEventListener('click', exportStockToTxt);
+
+      // Copy handlers
+      document.querySelectorAll('[data-copy]').forEach(card => {
+        card.addEventListener('click', () => {
+          flash(card);
+          const t = card.getAttribute('data-copy');
+          if (t === 'email') return copyField('email');
+          if (t === 'password') return copyField('password');
+          if (t === 'token') return copyField('token');
+          if (t === 'appPassword') return copyField('appPassword');
+        });
+      });
+
+      copyAuthUrlBtn.addEventListener('click', () => { flash(copyAuthUrlBtn); copyField('authUrl'); });
+      copyMessagesUrlBtn.addEventListener('click', () => { flash(copyMessagesUrlBtn); copyField('messagesUrl'); });
+
+      addInvBtn.addEventListener('click', createNewInventory);
+
+      // Settings open/close
+      settingsBtn.addEventListener('click', openSettings);
+      closeSettingsBtn.addEventListener('click', closeSettings);
+      settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) closeSettings(); });
+
+      saveSettingsBtn.addEventListener('click', applySettingsFromForm);
+      resetSettingsBtn.addEventListener('click', () => {
+        if (!confirm('إرجاع الإعدادات الافتراضية؟')) return;
+        resetSettings();
+      });
+
+      resetPulledCounterBtn.addEventListener('click', resetPulledCounter);
+      clearActiveInventoryBtn.addEventListener('click', clearStorage);
+      openEditorBtn.addEventListener('click', openEditor);
+
+      // Links modal
+      linksBtn.addEventListener('click', openLinks);
+      closeLinksBtn.addEventListener('click', closeLinks);
+      addLinkBtn.addEventListener('click', addLink);
+      linksModal.addEventListener('click', (e) => { if (e.target === linksModal) closeLinks(); });
+
+      // Copy fallback modal
+      closeCopyModalBtn.addEventListener('click', () => closeModal(copyModal));
+      copyModal.addEventListener('click', (e) => { if (e.target === copyModal) closeModal(copyModal); });
+
+      selectAllCopyBtn.addEventListener('click', () => {
+        flash(selectAllCopyBtn);
+        try{
+          copyFallbackArea.focus();
+          copyFallbackArea.select();
+          showToast('تم تحديد الكل ✅', 'success');
+        }catch(_){}
+      });
+      tryCopyAgainBtn.addEventListener('click', async () => {
+        flash(tryCopyAgainBtn);
+        if(!lastCopyAttemptText) return;
+        const ok = await copyText(lastCopyAttemptText);
+        showToast(ok ? 'تم النسخ ✅' : 'لسه ما صار نسخ.. استخدم النسخ اليدوي', ok ? 'success' : 'error');
+      });
+
+      // Editor modal events
+      closeEditorBtn.addEventListener('click', closeEditor);
+      editorModal.addEventListener('click', (e) => { if (e.target === editorModal) closeEditor(); });
+
+      addItemBtn.addEventListener('click', () => openEditItem(null));
+      editorSearch.addEventListener('input', () => {
+        editorFilter = String(editorSearch.value || '');
+        editorPage = 0;
+        renderEditor();
+      });
+
+      editorPrevBtn.addEventListener('click', () => { editorPage--; renderEditor(); });
+      editorNextBtn.addEventListener('click', () => { editorPage++; renderEditor(); });
+
+      editorList.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button[data-act]');
+        if(!btn) return;
+        const act = btn.getAttribute('data-act');
+        const idx = parseInt(btn.getAttribute('data-idx') || '', 10);
+        if(Number.isNaN(idx)) return;
+
+        if(act === 'copyLine'){
+          const acc = S().inventory[idx];
+          await copyWithFallback(lineFromAcc(acc), 'تم نسخ السطر');
+          return;
+        }
+        if(act === 'edit'){
+          openEditItem(idx);
+          return;
+        }
+        if(act === 'delete'){
+          const acc = S().inventory[idx];
+          const label = acc?.login ? `(${acc.login})` : '';
+          if(!confirm(`حذف هذا العنصر ${label} ؟`)) return;
+          S().inventory.splice(idx, 1);
+          persist();
+          updateUI();
+          renderEditor();
+          showToast('تم الحذف ✅', 'success');
+        }
+      });
+
+      // Edit item modal
+      closeEditItemBtn.addEventListener('click', closeEditItem);
+      editItemModal.addEventListener('click', (e) => { if (e.target === editItemModal) closeEditItem(); });
+
+      saveItemBtn.addEventListener('click', saveEditItem);
+      deleteItemBtn.addEventListener('click', deleteEditItem);
+      copyLineFromEditBtn.addEventListener('click', copyLineFromEdit);
+
+      // =========================
+      // Init
+      // =========================
+      loadPersisted();
+      applySettingsToUI();
+      buildTabs();
+      setActiveInventory(activeInvId, true);
+      updateUI();
+      renderMoveButtons();
+      renderLinks();
+      renderSettingsInventories();
+
+      // =========================
+      // Snow (respects settings)
+      // =========================
+      const canvas = document.getElementById('snowCanvas');
+      const ctx = canvas.getContext('2d', { alpha: true });
+      let W = 0, H = 0;
+
+      function resize(){
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize, { passive:true });
+      resize();
+
+      const flakes = Array.from({ length: 55 }, () => ({
+        x: Math.random()*W,
+        y: Math.random()*H,
+        r: 0.6 + Math.random()*1.6,
+        v: 0.25 + Math.random()*0.9,
+        drift: (Math.random()*0.6) - 0.3,
+        a: 0.12 + Math.random()*0.20
+      }));
+
+      function snowTick(){
+        if (!snowEnabled) {
+          ctx.clearRect(0,0,W,H);
+          requestAnimationFrame(snowTick);
+          return;
+        }
+
+        ctx.clearRect(0,0,W,H);
+        for(const f of flakes){
+          f.y += f.v;
+          f.x += f.drift;
+
+          if (f.y > H + 5) { f.y = -5; f.x = Math.random()*W; }
+          if (f.x > W + 5) f.x = -5;
+          if (f.x < -5) f.x = W + 5;
+
+          ctx.beginPath();
+          ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
+          ctx.closePath();
+          ctx.fillStyle = `rgba(255,255,255,${f.a})`;
+          ctx.fill();
+        }
+        requestAnimationFrame(snowTick);
+      }
+      snowTick();
+
+    })();
+  </script>
 </body>
 </html>
