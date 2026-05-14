@@ -554,6 +554,261 @@
       #addBtn{ width:100%; min-width:0; }
     }
 
+
+    /* =========================
+       Final clean 4K / 3D layout - v4
+       Visual/UI only. Does NOT change LS_KEY or stored inventory structure.
+       ========================= */
+    :root{
+      --final-bg:#07101f;
+      --final-bg-2:#0b1f35;
+      --final-panel:rgba(8,18,34,.72);
+      --final-panel-2:rgba(16,31,53,.68);
+      --final-line:rgba(255,255,255,.14);
+      --final-text:#f8fafc;
+      --final-muted:#9fb0c8;
+      --final-cyan:#38bdf8;
+      --final-blue:#2563eb;
+      --final-green:#22c55e;
+      --final-purple:#a855f7;
+      --final-amber:#f59e0b;
+      --final-red:#ef4444;
+    }
+
+    html{ scroll-behavior:smooth; }
+    body{
+      font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Tajawal', 'Segoe UI', Arial, sans-serif !important;
+      background:
+        radial-gradient(1200px 720px at 12% -8%, rgba(56,189,248,.28), transparent 58%),
+        radial-gradient(1100px 680px at 92% 12%, rgba(37,99,235,.26), transparent 58%),
+        radial-gradient(1000px 700px at 52% 110%, rgba(34,197,94,.16), transparent 62%),
+        linear-gradient(135deg, #050b16 0%, var(--final-bg) 38%, var(--final-bg-2) 100%) !important;
+      background-size: 3840px 2160px, 3840px 2160px, 3840px 2160px, 100% 100% !important;
+      color:var(--final-text) !important;
+    }
+    body::before{
+      background:
+        radial-gradient(circle at 18% 18%, rgba(56,189,248,.30), transparent 25%),
+        radial-gradient(circle at 78% 18%, rgba(168,85,247,.18), transparent 28%),
+        radial-gradient(circle at 50% 84%, rgba(34,197,94,.14), transparent 35%) !important;
+      filter: blur(18px) saturate(120%);
+      animation: finalAurora 18s ease-in-out infinite alternate;
+      opacity:.95;
+    }
+    body::after{
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,.075) 1px, transparent 1px) !important;
+      background-size: 72px 72px, 72px 72px, 28px 28px !important;
+      opacity:.28 !important;
+      mask-image: radial-gradient(circle at center, black 0 58%, transparent 78%) !important;
+    }
+    @keyframes finalAurora{
+      from{ transform:translate3d(-18px,-8px,0) scale(1); }
+      to{ transform:translate3d(18px,14px,0) scale(1.04); }
+    }
+    @media (prefers-reduced-motion: reduce){
+      body::before, #pullBtn::before{ animation:none !important; }
+      .soft:hover, .field-copy:hover{ transform:none !important; }
+    }
+
+    header{
+      max-width:1100px !important;
+      padding:20px !important;
+      border-radius:34px !important;
+      background:linear-gradient(145deg, rgba(255,255,255,.105), rgba(255,255,255,.045)) !important;
+      border:1px solid rgba(255,255,255,.15) !important;
+      box-shadow:0 30px 95px rgba(0,0,0,.33), inset 0 1px 0 rgba(255,255,255,.14) !important;
+      backdrop-filter:blur(18px) saturate(135%);
+      -webkit-backdrop-filter:blur(18px) saturate(135%);
+    }
+    main{ max-width:1100px !important; }
+    header h1{ font-weight:900 !important; }
+    header h1 i{ color:var(--final-cyan) !important; }
+    .glass-panel, .modal-panel, .field-copy{
+      backdrop-filter:blur(18px) saturate(135%);
+      -webkit-backdrop-filter:blur(18px) saturate(135%);
+    }
+    .glass-panel{
+      background:linear-gradient(145deg, rgba(255,255,255,.095), rgba(255,255,255,.045)) !important;
+      border:1px solid rgba(255,255,255,.145) !important;
+      box-shadow:0 28px 82px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.12) !important;
+    }
+    .soft:hover{ transform:translateY(-1px); }
+
+    /* Main page should be simple: inventory tabs, settings, counters, pull button and result. */
+    #tabsWrap{ gap:10px !important; }
+    #tabsWrap .tab-pill{
+      background:rgba(255,255,255,.075) !important;
+      border:1px solid rgba(255,255,255,.12) !important;
+      color:#eaf6ff !important;
+    }
+    #tabsWrap .tab-active{
+      background:linear-gradient(135deg, rgba(56,189,248,.34), rgba(37,99,235,.26)) !important;
+      border-color:rgba(125,211,252,.55) !important;
+      box-shadow:0 16px 36px rgba(56,189,248,.16), inset 0 1px 0 rgba(255,255,255,.18) !important;
+    }
+    #settingsBtn{
+      background:linear-gradient(135deg, #0ea5e9, #2563eb) !important;
+      color:white !important;
+      border:0 !important;
+      box-shadow:0 20px 45px rgba(14,165,233,.30), inset 0 1px 0 rgba(255,255,255,.22) !important;
+      min-width:170px;
+    }
+    header > div:last-child > .glass-panel{
+      background:linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.055)) !important;
+      border-color:rgba(255,255,255,.16) !important;
+    }
+
+    #pullBtn{
+      width:min(100%, 620px) !important;
+      padding:22px 34px !important;
+      border-radius:32px !important;
+      background:linear-gradient(135deg, #16a34a 0%, #22c55e 46%, #06b6d4 100%) !important;
+      border:1px solid rgba(255,255,255,.22) !important;
+      box-shadow:0 28px 75px rgba(34,197,94,.32), 0 12px 30px rgba(6,182,212,.14), inset 0 1px 0 rgba(255,255,255,.30) !important;
+      transform-style:preserve-3d;
+    }
+    #pullBtn:hover{ transform:translateY(-3px) rotateX(2deg); }
+    #pullBtn span{ text-shadow:0 2px 18px rgba(0,0,0,.26); }
+
+    /* Result card: email and daily actions in the front with clear colors. */
+    #resultArea{ animation: resultPop .34s ease-out both; }
+    @keyframes resultPop{ from{opacity:0; transform:translateY(12px) scale(.99)} to{opacity:1; transform:none} }
+    #resultArea > .glass-panel{
+      border-radius:34px !important;
+      background:linear-gradient(145deg, rgba(8,18,34,.84), rgba(9,23,42,.66)) !important;
+      border-color:rgba(125,211,252,.20) !important;
+    }
+    #resultArea > .glass-panel > div{
+      background:rgba(3,8,18,.34) !important;
+      border-radius:30px !important;
+    }
+    #resultArea .grid:first-of-type{ gap:14px !important; }
+    #resultArea [data-copy="email"]{
+      grid-column:1 / -1;
+      min-height:92px;
+      padding:20px !important;
+      border-radius:28px !important;
+      background:linear-gradient(135deg, rgba(14,165,233,.34), rgba(37,99,235,.22)) !important;
+      border:1px solid rgba(125,211,252,.46) !important;
+      box-shadow:0 24px 55px rgba(14,165,233,.20), inset 0 1px 0 rgba(255,255,255,.18) !important;
+    }
+    #resultArea [data-copy="email"] label{ color:#dbeafe !important; font-weight:900; font-size:13px !important; }
+    #emailDisplay{ color:#ffffff !important; font-size:clamp(18px, 3vw, 28px) !important; font-weight:900 !important; letter-spacing:.01em; }
+    #resultArea [data-copy="password"]{
+      background:linear-gradient(135deg, rgba(244,63,94,.20), rgba(127,29,29,.12)) !important;
+      border-color:rgba(251,113,133,.34) !important;
+    }
+    #resultArea [data-copy="token"]{
+      background:linear-gradient(135deg, rgba(245,158,11,.20), rgba(120,53,15,.12)) !important;
+      border-color:rgba(251,191,36,.34) !important;
+    }
+    #resultArea [data-copy="appPassword"]{
+      background:linear-gradient(135deg, rgba(168,85,247,.20), rgba(88,28,135,.12)) !important;
+      border-color:rgba(192,132,252,.34) !important;
+    }
+    #resultArea .field-copy, #resultArea .soft.bg-slate-950\/25{
+      border-radius:24px !important;
+      box-shadow:0 18px 44px rgba(0,0,0,.21), inset 0 1px 0 rgba(255,255,255,.08) !important;
+    }
+    #copyFullBtn{
+      background:linear-gradient(135deg, #0284c7, #2563eb) !important;
+      border:1px solid rgba(125,211,252,.32) !important;
+      box-shadow:0 20px 45px rgba(37,99,235,.24), inset 0 1px 0 rgba(255,255,255,.22) !important;
+    }
+    #restoreBtn{
+      background:linear-gradient(135deg, rgba(22,163,74,.95), rgba(34,197,94,.80)) !important;
+      border-color:rgba(187,247,208,.28) !important;
+      color:#f0fdf4 !important;
+    }
+    #deleteLastBtn{
+      background:linear-gradient(135deg, rgba(220,38,38,.86), rgba(239,68,68,.66)) !important;
+      border-color:rgba(254,202,202,.22) !important;
+      color:#fff1f2 !important;
+    }
+    #authUrlBtn, #messagesUrlBtn, #copyAuthUrlBtn, #copyMessagesUrlBtn{
+      min-height:38px;
+      border-radius:14px !important;
+      font-weight:900;
+    }
+    #copyAuthUrlBtn, #copyMessagesUrlBtn{ background:rgba(255,255,255,.10) !important; border-color:rgba(255,255,255,.16) !important; }
+
+    /* Content moved into settings. */
+    .settings-moved-block{
+      border-radius:28px;
+      padding:16px;
+      background:linear-gradient(145deg, rgba(14,165,233,.13), rgba(37,99,235,.075));
+      border:1px solid rgba(125,211,252,.18);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.10), 0 16px 36px rgba(0,0,0,.14);
+    }
+    .settings-moved-block-title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:#ffffff;
+      font-weight:900;
+      margin-bottom:12px;
+    }
+    .settings-moved-block-title small{ color:#b6c7df; font-weight:700; }
+    .settings-stock-feed{
+      margin:0 !important;
+      padding:18px !important;
+      border-radius:28px !important;
+      background:linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.04)) !important;
+    }
+    .settings-stock-feed #inputSection{ display:block !important; }
+    .settings-stock-feed .flex.flex-col.md\:flex-row{ gap:12px !important; }
+    #addonQuickActions{ grid-template-columns:repeat(3, minmax(0, 1fr)) !important; }
+    #addonQuickActions #addInvBtn,
+    #addonQuickActions #linksBtn,
+    #addonQuickActions #themeBtn{
+      display:flex !important;
+      background:rgba(255,255,255,.085) !important;
+      border:1px solid rgba(255,255,255,.14) !important;
+      color:#f8fafc !important;
+    }
+    #addonQuickActions #addInvBtn{ background:linear-gradient(135deg, rgba(34,197,94,.20), rgba(255,255,255,.06)) !important; }
+    #addonQuickActions #linksBtn{ background:linear-gradient(135deg, rgba(14,165,233,.20), rgba(255,255,255,.06)) !important; }
+    #addonQuickActions #themeBtn{ background:linear-gradient(135deg, rgba(168,85,247,.20), rgba(255,255,255,.06)) !important; }
+
+    /* Light theme final polish */
+    :root[data-theme="light"] body{
+      background:
+        radial-gradient(1200px 720px at 12% -8%, rgba(56,189,248,.18), transparent 58%),
+        radial-gradient(1100px 680px at 92% 12%, rgba(37,99,235,.14), transparent 58%),
+        linear-gradient(135deg, #eaf6ff 0%, #f8fafc 50%, #eef2ff 100%) !important;
+      color:#0f172a !important;
+    }
+    :root[data-theme="light"] header,
+    :root[data-theme="light"] .glass-panel,
+    :root[data-theme="light"] .modal-panel,
+    :root[data-theme="light"] .settings-moved-block{
+      background:rgba(255,255,255,.82) !important;
+      border-color:rgba(15,23,42,.12) !important;
+      box-shadow:0 28px 78px rgba(15,23,42,.12), inset 0 1px 0 rgba(255,255,255,.80) !important;
+    }
+    :root[data-theme="light"] .settings-moved-block-title,
+    :root[data-theme="light"] .smart-title{ color:#0f172a !important; }
+    :root[data-theme="light"] .settings-moved-block-title small,
+    :root[data-theme="light"] .smart-text{ color:#475569 !important; }
+    :root[data-theme="light"] #resultArea > .glass-panel{ background:rgba(255,255,255,.86) !important; }
+    :root[data-theme="light"] #resultArea > .glass-panel > div{ background:rgba(248,250,252,.72) !important; }
+
+    @media (max-width:767px){
+      body{ padding:12px 10px 24px !important; }
+      header{ gap:14px !important; border-radius:28px !important; }
+      header > div:last-child{ grid-template-columns:1fr 1fr !important; }
+      #tabsWrap{ grid-template-columns:1fr !important; }
+      #settingsBtn{ width:100% !important; min-width:0; }
+      #pullBtn{ font-size:20px !important; padding:19px 20px !important; }
+      #emailDisplay{ white-space:normal !important; overflow-wrap:anywhere !important; }
+      #addonQuickActions{ grid-template-columns:1fr !important; }
+      .settings-moved-block{ padding:12px; border-radius:24px; }
+      .settings-stock-feed{ padding:14px !important; }
+    }
+
   </style>
 </head>
 
@@ -590,7 +845,7 @@
 
         <button id="settingsBtn" title="إعدادات"
           class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold text-slate-100">
-          <i class="fa-solid fa-sliders ml-2 text-white/90"></i> إعدادات الإضافة
+          <i class="fa-solid fa-sliders ml-2 text-white/90"></i> إعدادات إضافية
         </button>
 
         <button id="themeBtn" title="نهار/ليل"
@@ -615,17 +870,17 @@
     <section class="smart-guide" aria-label="دليل سريع للمبتدئين">
       <div class="smart-card" style="--card-glow: rgba(96,165,250,.28)">
         <div class="smart-icon"><i class="fa-solid fa-layer-group text-blue-300"></i></div>
-        <div class="smart-title">1. أضف البيانات بوضوح</div>
+        <div class="smart-title">أضف البيانات بوضوح</div>
         <div class="smart-text">الصق الأسطر بنفس الفاصل الحالي، ثم اضغط إضافة للمخزون. لا يتم حذف القديم إلا عند اختيار التصفير بنفسك.</div>
       </div>
       <div class="smart-card" style="--card-glow: rgba(52,211,153,.24)">
         <div class="smart-icon"><i class="fa-solid fa-wand-magic-sparkles text-emerald-300"></i></div>
-        <div class="smart-title">2. اسحب حساب بسرعة</div>
+        <div class="smart-title">اسحب حساب بسرعة</div>
         <div class="smart-text">زر السحب الكبير في المنتصف يعرض الحساب بشكل مرتب، مع نسخ البريد والروابط بضغطة واحدة.</div>
       </div>
       <div class="smart-card" style="--card-glow: rgba(192,132,252,.25)">
         <div class="smart-icon"><i class="fa-solid fa-shield-heart text-purple-300"></i></div>
-        <div class="smart-title">3. التخزين محفوظ محليًا</div>
+        <div class="smart-title">التخزين محفوظ محليًا</div>
         <div class="smart-text">تم الحفاظ على نفس التخزين المحلي، مع نسخة احتياطية تلقائية قبل التشغيل لحماية المخزون.</div>
       </div>
     </section>
@@ -818,8 +1073,8 @@ login;password;authenticatorToken;appPassword;authenticatorUrl;messagesUrl"></te
       <div class="flex justify-between items-center mb-3">
         <div class="flex items-center gap-2">
           <i class="fa-solid fa-gear text-slate-300"></i>
-          <span class="font-extrabold text-white">إعدادات الإضافة</span>
-          <span class="text-xs text-slate-300">الأدوات الأقل استخدامًا</span>
+          <span class="font-extrabold text-white">إعدادات إضافية</span>
+          <span class="text-xs text-slate-300">الأدوات الأقل استخدامًا والشرح</span>
         </div>
         <button id="closeSettingsBtn" class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold">
           إغلاق
@@ -949,6 +1204,7 @@ login;password;authenticatorToken;appPassword;authenticatorUrl;messagesUrl"></te
         </div>
 
       </div>
+    </div>
   </div>
 
   <!-- Links Modal -->
@@ -2345,6 +2601,49 @@ login;password;authenticatorToken;appPassword;authenticatorUrl;messagesUrl"></te
       }
 
       // =========================
+      // Final layout organizer
+      // =========================
+      function moveBeginnerToolsToSettings(){
+        const holder = document.getElementById('addonQuickActions');
+        if (!holder) return;
+        const quickPanel = holder.closest('.addon-actions-panel');
+        const root = quickPanel ? quickPanel.parentElement : (holder.parentElement ? holder.parentElement.parentElement : null);
+        if (!root) return;
+
+        const guide = document.querySelector('section.smart-guide');
+        if (guide && !document.getElementById('settingsGuideBlock')) {
+          const block = document.createElement('div');
+          block.id = 'settingsGuideBlock';
+          block.className = 'settings-moved-block space-y-3';
+          block.innerHTML = `
+            <div class="settings-moved-block-title">
+              <i class="fa-solid fa-circle-info text-sky-300"></i>
+              <span>شرح سريع للمبتدئين</span>
+              <small>الأشياء الإرشادية داخل الإعدادات</small>
+            </div>`;
+          block.appendChild(guide);
+          root.insertBefore(block, quickPanel || root.firstChild);
+        }
+
+        const inputCard = inputSectionEl ? inputSectionEl.closest('section.glass-panel') : null;
+        if (inputCard && !inputCard.classList.contains('settings-stock-feed')) {
+          inputCard.classList.add('settings-stock-feed');
+          const block = document.createElement('div');
+          block.id = 'settingsStockFeedBlock';
+          block.className = 'settings-moved-block';
+          block.innerHTML = `
+            <div class="settings-moved-block-title">
+              <i class="fa-solid fa-file-circle-plus text-emerald-300"></i>
+              <span>تغذية المخزون</span>
+              <small>الإضافة والاستيراد والتصدير والتصفير</small>
+            </div>`;
+          block.appendChild(inputCard);
+          if (quickPanel && quickPanel.nextSibling) root.insertBefore(block, quickPanel.nextSibling);
+          else root.appendChild(block);
+        }
+      }
+
+      // =========================
       // Events
       // =========================
       themeBtn.addEventListener('click', ()=>{
@@ -2489,12 +2788,13 @@ login;password;authenticatorToken;appPassword;authenticatorUrl;messagesUrl"></te
       renderMoveButtons();
       renderLinks();
       renderSettingsInventories();
+      moveBeginnerToolsToSettings();
 
-      // ترتيب الواجهة: نقل الأزرار الأقل استخدامًا إلى "إعدادات الإضافة" بدون تغيير التخزين أو الوظائف.
+      // ترتيب الواجهة: نقل الأزرار الأقل استخدامًا إلى "إعدادات إضافية" بدون تغيير التخزين أو الوظائف.
       (function organizeAddonActions(){
         const holder = document.getElementById('addonQuickActions');
         if (!holder) return;
-        const ids = ['addInvBtn','linksBtn','themeBtn','importBtn','exportBtn','clearBtn'];
+        const ids = ['addInvBtn','linksBtn','themeBtn'];
         ids.forEach((id) => {
           const el = document.getElementById(id);
           if (!el) return;
