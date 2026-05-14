@@ -12,7 +12,7 @@
 
   <style>
     body{
-      font-family:'Tajawal', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Tajawal', 'Segoe UI', Roboto, Arial, sans-serif;
       background:
         radial-gradient(900px 500px at 15% -10%, rgba(59,130,246,.18), transparent 60%),
         radial-gradient(800px 500px at 90% 10%, rgba(16,185,129,.12), transparent 55%),
@@ -209,6 +209,214 @@
       }
     }
 
+
+    /* =========================
+       Smart 3D iPhone-style redesign
+       Visual only: does not change localStorage keys or inventory data.
+       ========================= */
+    :root{
+      --surface: rgba(15,23,42,.68);
+      --surface-2: rgba(30,41,59,.52);
+      --stroke: rgba(226,232,240,.16);
+      --text-soft: rgba(226,232,240,.78);
+      --blue: #60a5fa;
+      --green: #34d399;
+      --purple: #c084fc;
+      --amber: #fbbf24;
+      --danger: #fb7185;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-120px;
+      z-index:0;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 22% 18%, rgba(96,165,250,.28), transparent 28%),
+        radial-gradient(circle at 78% 8%, rgba(52,211,153,.20), transparent 26%),
+        radial-gradient(circle at 50% 90%, rgba(192,132,252,.18), transparent 32%);
+      filter: blur(10px);
+    }
+
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black, transparent 72%);
+    }
+
+    header, main, .modal-backdrop, #toast{ position:relative; z-index:10; }
+
+    .glass-panel{
+      background: linear-gradient(145deg, rgba(15,23,42,.72), rgba(2,6,23,.48));
+      border:1px solid var(--stroke);
+      box-shadow:
+        0 26px 70px rgba(0,0,0,.34),
+        inset 0 1px 0 rgba(255,255,255,.10),
+        inset 0 -1px 0 rgba(15,23,42,.44);
+      transform-style:preserve-3d;
+    }
+
+    section.glass-panel, .modal-panel{
+      border-radius: 30px !important;
+    }
+
+    .glass-panel:hover{
+      box-shadow:
+        0 34px 88px rgba(0,0,0,.42),
+        0 0 0 1px rgba(96,165,250,.08),
+        inset 0 1px 0 rgba(255,255,255,.12);
+    }
+
+    .tab-pill, button, a[id$="Btn"]{
+      min-height: 44px;
+      border-radius: 18px !important;
+    }
+
+    .tab-pill{
+      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.035));
+      box-shadow: 0 12px 28px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.08);
+    }
+
+    .tab-active{
+      background: linear-gradient(135deg, rgba(96,165,250,.30), rgba(52,211,153,.13));
+      border-color: rgba(125,211,252,.58);
+      color: #fff !important;
+    }
+
+    .soft:hover{ transform: translateY(-1px); }
+    .press-glow:active{ transform: translateY(1px) scale(.99); }
+
+    input, textarea, select{
+      background: rgba(2,6,23,.36) !important;
+      border-color: rgba(148,163,184,.22) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 10px 26px rgba(0,0,0,.12);
+    }
+
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(96,165,250,.82) !important;
+      box-shadow: 0 0 0 4px rgba(96,165,250,.16), inset 0 1px 0 rgba(255,255,255,.07) !important;
+    }
+
+    .field-copy{
+      background: linear-gradient(145deg, rgba(15,23,42,.55), rgba(2,6,23,.28)) !important;
+      box-shadow: 0 18px 36px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    .field-copy:hover{
+      transform: translateY(-2px) rotateX(1deg);
+      border-color: rgba(96,165,250,.48) !important;
+    }
+
+    .smart-guide{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:14px;
+      margin-bottom: 20px;
+    }
+    .smart-card{
+      position:relative;
+      overflow:hidden;
+      padding:16px;
+      border-radius:26px;
+      background: linear-gradient(145deg, rgba(15,23,42,.70), rgba(30,41,59,.34));
+      border:1px solid rgba(226,232,240,.14);
+      box-shadow: 0 20px 48px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.08);
+    }
+    .smart-card::before{
+      content:"";
+      position:absolute;
+      width:110px;
+      height:110px;
+      border-radius:999px;
+      top:-48px;
+      left:-34px;
+      background: var(--card-glow, rgba(96,165,250,.24));
+      filter: blur(4px);
+    }
+    .smart-card > *{ position:relative; }
+    .smart-icon{
+      width:42px;
+      height:42px;
+      display:grid;
+      place-items:center;
+      border-radius:16px;
+      background: rgba(255,255,255,.10);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 10px 24px rgba(0,0,0,.20);
+      margin-bottom:10px;
+    }
+    .smart-title{ font-weight:900; color:#fff; font-size:15px; }
+    .smart-text{ color:var(--text-soft); font-size:12px; line-height:1.8; margin-top:4px; }
+
+    #pullBtn{
+      overflow:hidden;
+      isolation:isolate;
+      box-shadow: 0 22px 58px rgba(16,185,129,.28), inset 0 1px 0 rgba(255,255,255,.26) !important;
+    }
+    #pullBtn::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      z-index:-1;
+      background: linear-gradient(90deg, rgba(255,255,255,.0), rgba(255,255,255,.28), rgba(255,255,255,.0));
+      transform: translateX(120%);
+      animation: sheen 3.8s ease-in-out infinite;
+    }
+    @keyframes sheen{ 0%,45%{transform:translateX(120%)} 70%,100%{transform:translateX(-120%)} }
+
+    header h1{
+      letter-spacing:-.02em;
+      text-shadow: 0 10px 30px rgba(96,165,250,.20);
+    }
+
+    header > div:last-child > .glass-panel{
+      min-width: 132px;
+      transform: translateZ(8px);
+    }
+
+    :root[data-theme="light"]{
+      --surface: rgba(255,255,255,.78);
+      --surface-2: rgba(248,250,252,.72);
+      --stroke: rgba(15,23,42,.12);
+      --text-soft: rgba(15,23,42,.68);
+    }
+    :root[data-theme="light"] .glass-panel,
+    :root[data-theme="light"] .smart-card{
+      background: linear-gradient(145deg, rgba(255,255,255,.86), rgba(248,250,252,.66));
+      box-shadow: 0 24px 70px rgba(15,23,42,.12), inset 0 1px 0 rgba(255,255,255,.80);
+    }
+    :root[data-theme="light"] .smart-title,
+    :root[data-theme="light"] h2,
+    :root[data-theme="light"] .text-white{ color:#0f172a !important; }
+    :root[data-theme="light"] .smart-text{ color:#475569; }
+    :root[data-theme="light"] input,
+    :root[data-theme="light"] textarea,
+    :root[data-theme="light"] select{
+      background: rgba(255,255,255,.72) !important;
+      color:#0f172a !important;
+    }
+
+    @media (min-width:768px){
+      main{ perspective: 1400px; }
+      section.glass-panel{ transform: rotateX(.35deg); }
+    }
+
+    @media (max-width: 767px){
+      body{ padding:14px 10px 28px !important; }
+      .smart-guide{ grid-template-columns:1fr !important; gap:10px; }
+      .smart-card{ padding:14px; border-radius:22px; }
+      header h1{ font-size: 28px !important; }
+      header > div:last-child > .glass-panel{ min-width:0; }
+      #stockCount, #pulledCount{ font-size:30px !important; }
+      #pullBtn{ font-size:20px !important; padding:18px 20px !important; }
+      .tab-pill{ padding:10px 12px !important; }
+    }
+
   </style>
 </head>
 
@@ -266,6 +474,24 @@
   </header>
 
   <main class="w-full max-w-5xl space-y-6 relative z-10">
+
+    <section class="smart-guide" aria-label="دليل سريع للمبتدئين">
+      <div class="smart-card" style="--card-glow: rgba(96,165,250,.28)">
+        <div class="smart-icon"><i class="fa-solid fa-layer-group text-blue-300"></i></div>
+        <div class="smart-title">1. أضف البيانات بوضوح</div>
+        <div class="smart-text">الصق الأسطر بنفس الفاصل الحالي، ثم اضغط إضافة للمخزون. لا يتم حذف القديم إلا عند اختيار التصفير بنفسك.</div>
+      </div>
+      <div class="smart-card" style="--card-glow: rgba(52,211,153,.24)">
+        <div class="smart-icon"><i class="fa-solid fa-wand-magic-sparkles text-emerald-300"></i></div>
+        <div class="smart-title">2. اسحب حساب بسرعة</div>
+        <div class="smart-text">زر السحب الكبير في المنتصف يعرض الحساب بشكل مرتب، مع نسخ البريد والروابط بضغطة واحدة.</div>
+      </div>
+      <div class="smart-card" style="--card-glow: rgba(192,132,252,.25)">
+        <div class="smart-icon"><i class="fa-solid fa-shield-heart text-purple-300"></i></div>
+        <div class="smart-title">3. التخزين محفوظ محليًا</div>
+        <div class="smart-text">تم الحفاظ على نفس التخزين المحلي، مع نسخة احتياطية تلقائية قبل التشغيل لحماية المخزون.</div>
+      </div>
+    </section>
 
     <section class="glass-panel soft p-6 rounded-3xl shadow-xl">
       <div class="flex justify-between items-center mb-4 gap-3">
