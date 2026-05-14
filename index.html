@@ -116,6 +116,99 @@
     }
     :root[data-theme="light"] .tab-pill{ background: rgba(255,255,255,.55); }
     :root[data-theme="light"] .field-copy:hover{ background-color: rgba(2,6,23,.06); }
+
+
+    /* =========================
+       Mobile/offline safety patch
+       Keeps the same localStorage key and only fixes layout responsiveness.
+       ========================= */
+    *, *::before, *::after{ box-sizing:border-box; }
+    html, body{ width:100%; max-width:100%; overflow-x:hidden; }
+    img, video, canvas, svg{ max-width:100%; }
+    button, input, textarea, select{ max-width:100%; }
+
+    @media (max-width: 767px){
+      body{
+        display:block !important;
+        padding:16px 10px !important;
+        min-width:0 !important;
+      }
+
+      header, main{
+        width:100% !important;
+        max-width:100% !important;
+      }
+
+      header{
+        display:flex !important;
+        flex-direction:column !important;
+        align-items:stretch !important;
+        gap:14px !important;
+        margin-bottom:18px !important;
+      }
+
+      header > div{ width:100% !important; min-width:0 !important; }
+      header > div:last-child{
+        display:flex !important;
+        flex-direction:column !important;
+        align-items:stretch !important;
+        gap:10px !important;
+      }
+
+      #tabsWrap, header .flex-wrap{
+        display:grid !important;
+        grid-template-columns:1fr 1fr !important;
+        gap:8px !important;
+        width:100% !important;
+      }
+
+      #tabsWrap:empty{ display:none !important; }
+
+      #addInvBtn, #linksBtn, #settingsBtn, #themeBtn,
+      #importBtn, #exportBtn, #addBtn, #clearBtn, #pullBtn,
+      #copyFullBtn, #restoreBtn, #deleteLastBtn{
+        width:100% !important;
+        min-width:0 !important;
+        justify-content:center !important;
+        white-space:normal !important;
+      }
+
+      .glass-panel{
+        width:100% !important;
+        max-width:100% !important;
+      }
+
+      section.glass-panel{
+        padding:16px !important;
+        border-radius:22px !important;
+      }
+
+      .grid{
+        grid-template-columns:1fr !important;
+      }
+
+      .modal-backdrop{
+        padding:10px !important;
+        align-items:flex-start !important;
+      }
+
+      .modal-panel{
+        width:100% !important;
+        max-width:100% !important;
+        max-height:92vh !important;
+        border-radius:22px !important;
+      }
+
+      textarea, input, select{
+        font-size:16px !important;
+      }
+
+      .field-copy span, .font-mono, [id$="Label"]{
+        overflow-wrap:anywhere !important;
+        word-break:break-word !important;
+      }
+    }
+
   </style>
 </head>
 
@@ -683,6 +776,24 @@ login;password;authenticatorToken;appPassword;authenticatorUrl;messagesUrl"></te
       </p>
     </div>
   </div>
+
+
+  <script>
+    // Safety backup: keeps a copy of the existing local inventory before any updated code runs.
+    // This does not change or clear your current inventory.
+    (function(){
+      try{
+        var key = 'smartInv_local_only_v2';
+        var raw = localStorage.getItem(key);
+        if(raw){
+          localStorage.setItem(key + '_backup_latest', raw);
+          if(!localStorage.getItem(key + '_backup_before_update')){
+            localStorage.setItem(key + '_backup_before_update', raw);
+          }
+        }
+      }catch(e){}
+    })();
+  </script>
 
   <script>
     (function () {
