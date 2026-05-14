@@ -417,6 +417,143 @@
       .tab-pill{ padding:10px 12px !important; }
     }
 
+
+    /* =========================
+       Clean beginner layout - v3
+       Keeps all localStorage keys and data unchanged.
+       ========================= */
+    :root{
+      --app-bg-1:#07111f;
+      --app-bg-2:#0d2035;
+      --app-card:rgba(255,255,255,.075);
+      --app-card-strong:rgba(255,255,255,.105);
+      --app-border:rgba(255,255,255,.14);
+      --app-muted:#a8b3c7;
+      --app-primary:#38bdf8;
+      --app-primary-2:#2563eb;
+      --app-good:#22c55e;
+      --app-warn:#f59e0b;
+      --app-danger:#ef4444;
+    }
+    body{
+      background:
+        radial-gradient(850px 560px at 15% 0%, rgba(56,189,248,.20), transparent 58%),
+        radial-gradient(700px 500px at 86% 8%, rgba(34,197,94,.13), transparent 56%),
+        linear-gradient(145deg, var(--app-bg-1), var(--app-bg-2) 52%, #091525) !important;
+      letter-spacing:-.01em;
+    }
+    body::after{ opacity:.20; background-size:56px 56px; }
+    .glass-panel,
+    .smart-card{
+      background:linear-gradient(145deg, rgba(255,255,255,.105), rgba(255,255,255,.052)) !important;
+      border:1px solid var(--app-border) !important;
+      box-shadow:0 24px 64px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.12) !important;
+    }
+    header{
+      background:linear-gradient(145deg, rgba(255,255,255,.08), rgba(255,255,255,.035));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:32px;
+      padding:18px;
+      box-shadow:0 24px 70px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.11);
+    }
+    header h1{ color:#f8fafc !important; font-size:clamp(28px,4vw,42px) !important; }
+    header h1 i{ color:var(--app-primary); filter:drop-shadow(0 10px 24px rgba(56,189,248,.35)); }
+    header > div:last-child{ align-items:stretch !important; }
+    header > div:last-child > .flex{ order:3; width:100%; justify-content:flex-start; }
+    #tabsWrap{ width:100%; display:flex; gap:8px; }
+    #tabsWrap .tab-pill{ background:rgba(255,255,255,.065); }
+    #settingsBtn{
+      background:linear-gradient(135deg, #2563eb, #38bdf8) !important;
+      color:white !important;
+      border:0 !important;
+      box-shadow:0 18px 38px rgba(37,99,235,.32) !important;
+    }
+    #addInvBtn,#linksBtn,#themeBtn{ display:none !important; }
+    #stockCount,#pulledCount{ line-height:1; }
+    .smart-guide{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:24px; }
+    .smart-card{ min-height:138px; }
+    .smart-card:nth-child(1){ --card-glow:rgba(56,189,248,.20) !important; }
+    .smart-card:nth-child(2){ --card-glow:rgba(34,197,94,.18) !important; }
+    .smart-card:nth-child(3){ --card-glow:rgba(99,102,241,.18) !important; }
+    .smart-icon{ background:rgba(255,255,255,.09) !important; border:1px solid rgba(255,255,255,.10); }
+    section.glass-panel{ border-radius:30px !important; }
+    textarea,input,select{
+      background:rgba(4,12,24,.48) !important;
+      border:1px solid rgba(255,255,255,.14) !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05) !important;
+    }
+    textarea:focus,input:focus,select:focus{ border-color:rgba(56,189,248,.75) !important; box-shadow:0 0 0 4px rgba(56,189,248,.14) !important; }
+    #inputSection > .flex{ gap:14px; }
+    #inputSection > .flex > div{ width:100%; justify-content:flex-end; }
+    #clearBtn,#importBtn,#exportBtn{ width:100%; }
+    #clearBtn{ border-color:rgba(239,68,68,.25) !important; }
+    #addBtn{
+      min-width:190px;
+      background:linear-gradient(135deg, #2563eb, #38bdf8) !important;
+      box-shadow:0 18px 40px rgba(56,189,248,.22) !important;
+    }
+    #pullBtn{
+      width:min(100%, 520px) !important;
+      background:linear-gradient(135deg, #16a34a, #22c55e) !important;
+      box-shadow:0 26px 60px rgba(34,197,94,.28), inset 0 1px 0 rgba(255,255,255,.25) !important;
+    }
+    #resultArea .field-copy{ background:rgba(255,255,255,.055) !important; border-color:rgba(255,255,255,.12) !important; }
+    .addon-actions-panel{
+      background:linear-gradient(145deg, rgba(14,165,233,.13), rgba(37,99,235,.08));
+      border:1px solid rgba(125,211,252,.18);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+    }
+    #addonQuickActions > button,
+    #addonQuickActions > a,
+    #addonQuickActions .addon-action{
+      width:100% !important;
+      justify-content:center !important;
+      min-height:46px;
+      border-radius:18px !important;
+      margin:0 !important;
+    }
+    #addonQuickActions #clearBtn{ background:rgba(239,68,68,.14) !important; color:#fecaca !important; }
+    #addonQuickActions #importBtn,
+    #addonQuickActions #exportBtn,
+    #addonQuickActions #linksBtn,
+    #addonQuickActions #themeBtn,
+    #addonQuickActions #addInvBtn{
+      display:flex !important;
+      background:rgba(255,255,255,.075) !important;
+      border:1px solid rgba(255,255,255,.12) !important;
+      color:#f8fafc !important;
+    }
+    :root[data-theme="light"] body{
+      background:linear-gradient(145deg,#eef6ff,#f8fafc 52%,#eef2ff) !important;
+      color:#0f172a !important;
+    }
+    :root[data-theme="light"] header,
+    :root[data-theme="light"] .glass-panel,
+    :root[data-theme="light"] .smart-card{
+      background:rgba(255,255,255,.82) !important;
+      border-color:rgba(15,23,42,.10) !important;
+      box-shadow:0 24px 70px rgba(15,23,42,.10), inset 0 1px 0 rgba(255,255,255,.75) !important;
+    }
+    :root[data-theme="light"] .text-slate-300,
+    :root[data-theme="light"] .text-slate-400{ color:#64748b !important; }
+    @media (min-width:768px){
+      section.glass-panel{ transform:none !important; }
+      header > div:last-child{ display:grid !important; grid-template-columns:auto auto; grid-template-areas:'stock pulled' 'nav nav'; }
+      header > div:last-child > .flex{ grid-area:nav; }
+      header > div:last-child > .glass-panel:nth-of-type(1){ grid-area:stock; }
+      header > div:last-child > .glass-panel:nth-of-type(2){ grid-area:pulled; }
+    }
+    @media (max-width:767px){
+      header{ padding:14px !important; border-radius:26px !important; }
+      header > div:last-child{ display:grid !important; grid-template-columns:1fr 1fr !important; gap:10px !important; }
+      header > div:last-child > .flex{ grid-column:1/-1; display:grid !important; grid-template-columns:1fr !important; }
+      #tabsWrap{ display:grid !important; grid-template-columns:1fr 1fr !important; }
+      #settingsBtn{ width:100% !important; }
+      .smart-guide{ grid-template-columns:1fr !important; }
+      #inputSection > .flex > div{ display:grid !important; grid-template-columns:1fr !important; }
+      #addBtn{ width:100%; min-width:0; }
+    }
+
   </style>
 </head>
 
@@ -453,7 +590,7 @@
 
         <button id="settingsBtn" title="إعدادات"
           class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold text-slate-100">
-          <i class="fa-solid fa-gear ml-2 text-slate-300"></i> الإعدادات
+          <i class="fa-solid fa-sliders ml-2 text-white/90"></i> إعدادات الإضافة
         </button>
 
         <button id="themeBtn" title="نهار/ليل"
@@ -681,8 +818,8 @@ login;password;authenticatorToken;appPassword;authenticatorUrl;messagesUrl"></te
       <div class="flex justify-between items-center mb-3">
         <div class="flex items-center gap-2">
           <i class="fa-solid fa-gear text-slate-300"></i>
-          <span class="font-extrabold text-white">إعدادات المخزون</span>
-          <span class="text-xs text-slate-300">إدارة المخازن</span>
+          <span class="font-extrabold text-white">إعدادات الإضافة</span>
+          <span class="text-xs text-slate-300">الأدوات الأقل استخدامًا</span>
         </div>
         <button id="closeSettingsBtn" class="press-glow soft tab-pill px-4 py-2 rounded-2xl text-sm font-bold">
           إغلاق
@@ -690,6 +827,17 @@ login;password;authenticatorToken;appPassword;authenticatorUrl;messagesUrl"></te
       </div>
 
             <div class="bg-slate-950/20 border border-slate-700/40 rounded-2xl p-4 space-y-4">
+
+        <div class="addon-actions-panel rounded-3xl p-4">
+          <div class="flex items-center justify-between gap-3 mb-3">
+            <div>
+              <div class="text-sm text-white font-black">أزرار إضافية</div>
+              <div class="text-xs text-slate-300">تم جمع الأدوات غير اليومية هنا حتى تبقى الواجهة الرئيسية سهلة.</div>
+            </div>
+            <i class="fa-solid fa-layer-group text-sky-300"></i>
+          </div>
+          <div id="addonQuickActions" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+        </div>
 
         <!-- General -->
         <div>
@@ -2341,6 +2489,19 @@ login;password;authenticatorToken;appPassword;authenticatorUrl;messagesUrl"></te
       renderMoveButtons();
       renderLinks();
       renderSettingsInventories();
+
+      // ترتيب الواجهة: نقل الأزرار الأقل استخدامًا إلى "إعدادات الإضافة" بدون تغيير التخزين أو الوظائف.
+      (function organizeAddonActions(){
+        const holder = document.getElementById('addonQuickActions');
+        if (!holder) return;
+        const ids = ['addInvBtn','linksBtn','themeBtn','importBtn','exportBtn','clearBtn'];
+        ids.forEach((id) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.classList.add('addon-action');
+          holder.appendChild(el);
+        });
+      })();
 
       // =========================
       // Snow (respects settings)
